@@ -1,0 +1,48 @@
+docker-compose exec kafka bash
+
+# create a topic called users
+$ kafka-topics \
+    --bootstrap-server localhost:9092 \
+    --create \
+    --topic users \
+    --partitions 4 \
+    --replication-factor 1
+    
+# describe it using the following command:
+$ kafka-topics \
+    --bootstrap-server localhost:9092 \
+    --describe \
+    --topic users
+
+# this will produce: 
+Topic: users	PartitionCount: 4	ReplicationFactor: 1	Configs:
+	Topic: users	Partition: 0	Leader: 1	Replicas: 1	Isr: 1
+	Topic: users	Partition: 1	Leader: 1	Replicas: 1	Isr: 1
+	Topic: users	Partition: 2	Leader: 1	Replicas: 1	Isr: 1
+	Topic: users	Partition: 3	Leader: 1	Replicas: 1	Isr: 1
+
+
+# Produce data to a topic
+$ kafka-console-producer \
+    --bootstrap-server localhost:9092 \
+    --property key.separator=, \
+    --property parse.key=true \
+    --topic users
+
+# this will produce:
+1,mitch
+2,elyse
+3,isabelle
+4,sammy
+
+
+# Consuming data from a topic
+$ kafka-console-consumer \
+    --bootstrap-server localhost:9092 \
+    --topic users \
+    --from-beginning
+
+mitch
+isabelle
+sammy
+elyse

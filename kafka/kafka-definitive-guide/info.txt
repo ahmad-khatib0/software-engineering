@@ -1,0 +1,141 @@
+-- A message can have an optional piece of metadata, which is referred to as a key. The key is also 
+       a byte array and, as with the message, has no specific meaning to Kafka. Keys are used when 
+       messages are to be written to partitions in a more controlled manner. The simplest such 
+       scheme is to generate a consistent hash of the key and then select the partition number for that
+       message by taking the result of the hash modulo the total number of partitions in the topic.
+       This ensures that messages with the same key are always written to the same partition 
+
+-- Messages are written into Kafka in batches. A batch is just a collection
+      of messages, all of which are being produced to the same topic and partition. An indi‐
+      vidual round trip across the network for each message would result in excessive over‐
+      head, and collecting messages together into a batch reduces this.
+
+
+-- Messages in Kafka are categorized into topics. The closest analogies for a topic are a database table 
+      or a folder in a filesystem. Topics are additionally broken down into a number of partitions
+
+-- Partitions are also the way that Kafka provides redundancy and scalability. Each partition can 
+      be hosted on a different server, which means that a single topic can be scaled horizontally 
+      across multiple servers to provide performance far beyond the ability of a single serve
+      Additionally, partitions can be replicated, such that different servers will store a 
+      copy of the same partition in case one server fails.
+
+-- By default, 
+      the producer will balance messages over all partitions of a topic evenly. In some cases,
+      the producer will direct messages to specific partitions. This is typically done using
+      the message key and a partitioner that will generate a hash of the key and map it to a specific 
+      partition. This ensures that all messages produced with a given key will get written to the same partition
+
+-- The consumer keeps track of which messages it has already consumed by keeping track of
+      the offset of messages. The offset—an integer value that continually increases is
+      another piece of metadata that Kafka adds to each message as it is produced
+
+-- Consumers work as part of a consumer group, which is one or more consumers that work together 
+      to consume a topic. The group ensures that each partition is only con‐ sumed by one member.
+
+
+-- A single Kafka server is called a broker. The broker receives messages from producers,
+      assigns offsets to them  a single broker can easily handle thousands of partitions
+      and millions of messages per second
+
+-- Kafka brokers are designed to operate as part of a cluster. Within a cluster 
+      of brokers, one broker will also function as the cluster controller 
+      (elected automatically from the live members of the cluster). 
+
+-- The controller is responsible for administrative operations, including assigning partitions 
+      to brokers and monitoring for broker failures, A partition is owned by a single broker in the 
+      cluster, and that broker is called the leader of the partition. A replicated partition is assigned to 
+      additional brokers, called followers of the partition. Replication provides redundancy of messages 
+      in the partition, such that one of the followers can take over leadership if there is a broker failure.
+
+-- Kafka brokers are configured with a default retention setting for topics, either retaining 
+     messages for some period of time (e.g., 7 days) or until the partition reaches a certain size 
+     in bytes (e.g., 1 GB). Once these limits are reached, messages are expired and deleted
+--  Individual topics can also be configured with their own retention settings so that messages are 
+      stored for only as long as they are useful. For example, a tracking topic might be retained for several
+      days, whereas application metrics might be retained for only a few hours. Topics can also be 
+      configured as log compacted, which means that Kafka will retain only the last message produced with 
+      a specific key. This can be useful for changelog-type data, where only the last update is interesting
+
+-- The Kafka project includes a tool called MirrorMaker, used for replicating data to other
+       clusters. At its core, MirrorMaker is simply a Kafka consumer and producer, linked together 
+       with a queue. Messages are consumed from one Kafka cluster and produced to another.
+
+
+-- Apache Kafka uses Apache ZooKeeper to store metadata about the Kafka cluster, as well as consumer 
+      client details  ZooKeeper is a centralized service for maintaining configuration information, 
+      naming, providing distributed synchronization, and providing group services. 
+
+
+-- ZooKeeper is designed to work as a cluster, called an ensemble, to ensure high availa‐
+      bility. Due to the balancing algorithm used, it is recommended that ensembles contain an odd number 
+      of servers (e.g., 3, 5, and so on) as a majority of ensemble members (a quorum) must be working in 
+      order for ZooKeeper to respond to requests. This means that in a three-node ensemble, you can run 
+      with one node miss‐ ing. With a five-node ensemble, you can run with two nodes missing.
+
+
+Kafka uses a configurable pool of threads for handling log segments. Currently, this thread pool is used:
+    • When starting normally, to open each partition’s log segments
+    • When starting after a failure, to check and truncate each partition’s log segments
+    • When shutting down, to cleanly close log segments
+
+
+-- Many users will have the partition count for a topic be equal to, or a multiple of, the number of brokers 
+      in the cluster. This allows the partitions to be evenly distributed to the brokers, which will evenly
+      distribute the message load. For example, a topic with 10 partitions operating in a Kafka cluster 
+      with 10 hosts with leadership balanced among all 10 hosts will have optimal throughput. 
+
+
+-- if we want to be able to write and read 1 GBps from a topic, and we know each consumer 
+      can only process 50 MBps, then we know we need at least 20 partitions. This way,
+      we can have 20 consumers reading from the topic and achieve 1 GBps
+
+-- Kafka itself does not need much heap memory configured for the Java Virtual Machine 
+       (JVM). Even a broker that is handling 150,000 messages per second and a data rate 
+       of 200 megabits per second can run with a 5 GB heap. 
+
+
+. A Kafka producer has three mandatory properties:
+  bootstrap.servers
+      List of host:port pairs of brokers that the producer will use to establish initial
+      connection to the Kafka cluster. This list doesn’t need to include all brokers, since
+      the producer will get more information after the initial connection. But it is rec‐
+      ommended to include at least two, so in case one broker goes down, the producer
+      will still be able to connect to the cluster.
+
+  key.serializer
+      Name of a class that will be used to serialize the keys of the records we will produce 
+      to Kafka. Kafka brokers expect byte arrays as keys and values of messages.
+      However, the producer interface allows, using parameterized types, any Java
+      object to be sent as a key and value. This makes for very readable code, but it
+      also means that the producer has to know how to convert these objects to byte
+      arrays. key.serializer should be set to a name of a class that implements the
+      org.apache.kafka.common.serialization.Serializer interface. The producer
+      will use this class to serialize the key object to a byte array. The Kafka client package includes 
+      ByteArraySerializer (which doesn’t do much), String Serializer, IntegerSerializer, and much more,
+      so if you use common types, there is no need to implement your own serializers. Setting 
+      key.serializer is required even if you intend to send only values, but you can use the Void 
+      type for the key and the VoidSerializer.
+
+  value.serializer
+      Name of a class that will be used to serialize the values of the records we will produce to 
+      Kafka. The same way you set key.serializer to a name of a class that
+      will serialize the message key object to a byte array, you set value.serializer to
+      a class that will serialize the message value object.
+
+
+. There are three primary methods of sending messages
+  Fire-and-forget
+      We send a message to the server and don’t really care if it arrives successfully or not. Most 
+      of the time, it will arrive successfully, since Kafka is highly available and the producer will 
+      retry sending messages automatically. However, in case of nonretriable errors or timeout, messages 
+      will get lost and the application will not get any information or exceptions about this.
+      
+  Synchronous send
+      Technically, Kafka producer is always asynchronous—we send a message and the
+      send() method returns a Future object. However, we use get() to wait on the
+      Future and see if the send() was successful or not before sending the next record.
+      
+  Asynchronous send
+      We call the send() method with a callback function, which gets triggered when it
+      receives a response from the Kafka broker.

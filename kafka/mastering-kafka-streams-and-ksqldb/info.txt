@@ -1,0 +1,7 @@
+-- When we say a log is ordered, what we mean is that a record’s position in the log is fixed, and never changes
+
+-- Kafka topics are extremely flexible with what you store in them. For example, you can have homgenous 
+   topics that contain only one type of data, or heterogeneous topics that contain multiple types of data.
+
+-- A bootstrap server is the host/IP pair for one or more brokers
+
