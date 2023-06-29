@@ -5,3 +5,35 @@
 
 -- A bootstrap server is the host/IP pair for one or more brokers
 
+
+There are 3 basic kinds of processors in Kafka Streams:
+Source processors - 
+    Sources are where information flows into the Kafka Streams application.
+    Data is read from a Kafka topic and sent to one or more stream processors.
+  
+Stream processors - 
+    These processors are responsible for applying data processing / transformation logic
+    on the input stream. In the high-level DSL, these processors are defined 
+    using a set of built-in operators that are exposed by the Kafka Streams 
+    library, Some example operators are: filter, map, flatMap, and join.
+
+Sink processors - 
+    Sinks are where enriched, transformed, filtered, or otherwise processed records are written 
+    back to Kafka, either to be handled by another stream processing application or to be sent 
+    to a downstream datastore via something like Kafka Connect. Like source processors, 
+    sink processors are connected to a Kafka topic.
+
+
+-- if your topology reads from one source topic that contains 16 partitions,
+    then Kafka Streams will create 16 tasks, each of which will instantiate it’s own copy
+    of the underlying processor topology. Once Kafka Streams has created all of the
+    tasks, it will assign the source partitions to be read from to each task.
+
+
+# init a project with gradle
+$ gradle init \
+    --type java-application \
+    --dsl groovy \
+    --test-framework junit-jupiter \
+    --project-name my-project \
+    --package com.example
