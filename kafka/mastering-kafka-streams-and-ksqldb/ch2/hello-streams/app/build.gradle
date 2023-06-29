@@ -7,36 +7,53 @@
  */
 
 plugins {
-    // Apply the application plugin to add support for building a CLI application in Java.
+    // Apply the java plugin to add support for Java
+    id 'java'
+
+    // Apply the application plugin to add support for building a CLI application.
     id 'application'
 }
 
 repositories {
-    // Use Maven Central for resolving dependencies.
-    mavenCentral()
+    // Use jcenter for resolving dependencies.
+    // You can declare any Maven/Ivy/file repository here.
+    jcenter()
 }
 
 dependencies {
-    // Use JUnit Jupiter for testing.
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
+    implementation 'org.apache.kafka:kafka-streams:2.7.0'
 
-    // This dependency is used by the application.
-    implementation 'com.google.guava:guava:31.1-jre'
-}
+    // Use JUnit Jupiter API for testing.
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
 
-// Apply a specific Java toolchain to ease working on different environments.
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
+    // Use JUnit Jupiter Engine for testing.
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
 }
 
 application {
     // Define the main class for the application.
-    mainClass = 'com.example.App'
+    mainClassName = 'com.example.DslExample'
 }
 
-tasks.named('test') {
-    // Use JUnit Platform for unit tests.
+test {
+    // Use junit platform for unit tests
     useJUnitPlatform()
 }
+
+// // code formatting
+// tasks.withType(JavaCompile).configureEach { javaCompile ->
+//   javaCompile.dependsOn 'googleJavaFormat'
+//   options.compilerArgs << "-Xlint:deprecation"
+//   options.encoding = 'UTF-8'
+// }
+
+task runDSL(type: JavaExec) {
+    main = 'com.example.DslExample'
+    classpath sourceSets.main.runtimeClasspath
+}
+
+// task runProcessorAPI(type: JavaExec) {
+//     main = 'com.example.ProcessorApiExample'
+//     classpath sourceSets.main.runtimeClasspath
+// }
+

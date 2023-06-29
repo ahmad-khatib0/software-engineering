@@ -37,3 +37,13 @@ $ gradle init \
     --test-framework junit-jupiter \
     --project-name my-project \
     --package com.example
+
+
+-- Kafka Streams leverages a programming paradigm called dataflow programming (DFP), which is a 
+      data-centric method of representing programs as a series of inputs, outputs, and processing 
+      stages. This leads to a very natural and intuitive way of creating stream processing programs...
+      
+      Instead of building a program as a sequence of steps, the stream processing logic in a
+      Kafka Streams application is structured as a directed acyclic graph (DAG), where nodes
+      represent a processing step, or processor, and the edges represent input
+      and output streams (where data flows from one processor to another)
