@@ -52,8 +52,8 @@ task runDSL(type: JavaExec) {
     classpath sourceSets.main.runtimeClasspath
 }
 
-// task runProcessorAPI(type: JavaExec) {
-//     main = 'com.example.ProcessorApiExample'
-//     classpath sourceSets.main.runtimeClasspath
-// }
+task runProcessorAPI(type: JavaExec) {
+    main = 'com.example.ProcessorApiExample'
+    classpath sourceSets.main.runtimeClasspath
+}
 
