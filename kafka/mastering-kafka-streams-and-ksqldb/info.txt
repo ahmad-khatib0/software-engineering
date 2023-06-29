@@ -5,6 +5,12 @@
 
 -- A bootstrap server is the host/IP pair for one or more brokers
 
+-- Multiple consumer groups can consume from a single topic, and each consumer 
+     group processes messages independently of other consumer groups
+     
+-- While partitions can be added to an existing topic, the recommended pattern is to create a new source topic
+     with the desired number of partitions, and to migrate all of the existing workloads to the new topic.
+
 
 There are 3 basic kinds of processors in Kafka Streams:
 Source processors - 
@@ -47,3 +53,67 @@ $ gradle init \
       Kafka Streams application is structured as a directed acyclic graph (DAG), where nodes
       represent a processing step, or processor, and the edges represent input
       and output streams (where data flows from one processor to another)
+
+
+--  There are two ways to model the data in your Kafka topics: 
+        as a Stream (also called a record stream) 
+        or a Table (also known as a changelog stream)
+
+
+-- KStream: an abstraction of a partitioned record stream, in which data is represented 
+      using insert semantics (i.e. each event is considered to be independent of other events).
+
+-- KTable: an abstraction of a partitioned table (i.e. changelog stream), in which data is 
+      represented using update semantics (the latest representation of a given key is
+      tracked by the application). Since KTables are partitioned,
+      each Kafka Streams task contains only a subset of the full table.
+      
+GlobalKTable: similar to a KTable, except each GlobalKTable contains a
+      complete (i.e. unpartitioned) copy of the underlying data. 
+
+
+ +-----------------------------+
+ | -- Kafka Stream Conclusion: |
+ +-----------------------------+
+
+-- Kafka Streams lives in the stream processing layer of the Kafka ecosystem.
+      This is where sophisticated data processing, transformation, and enrichment happens.
+
+-- Kafka Streams was built to simplify the development of stream processing
+      applications with a simple, functional API and a set of stream processing
+      primitives that can be reused across projects. When more control is needed, a
+      lower-level Processor API can also be used to define your topology.
+
+-- Kafka Streams has a friendlier learning curve and a simpler deployment
+      model than cluster-based solutions like Apache Flink and Apache Spark
+      Streaming. It also supports event-at-a-time processing, which is considered true streaming.
+
+-- Kafka Streams is great for solving problems that require or benefit from realtime decision-making
+      and data processing. Furthermore, it is reliable, main- tainable, scalable, and elastic.
+
+
+
+
+
+-- The simplest form of stream processing requires no memory of previously seen events. Each event 
+      is consumed, processed1, and subsequently forgotten. This par- adigm is called stateless processing,
+
+ +------------------------------------------------------------------------------------+
+ | -- The distinction between stateless and stateful stream processing applications : |
+ +------------------------------------------------------------------------------------+
+-- In stateless applications, each event handled by your Kafka Streams application is processed 
+      independently of other events, and only Stream views are needed by your 
+      application In other words, your application treats each event as a self-contained 
+      insert and requires no mem- ory of previously seen events.
+
+-- Stateful applications, on the other hand, need to remember information about
+      previously seen events in one or more steps of your processor topology, usually for the 
+      purpose of aggregating, windowing, or joining event streams. These applications are more 
+      complex under the hood since they need to track additional data, or state.
+
+
+.. Some operators, like filter, are considered stateless because they only need to look at the 
+      current record to perform an action (in this case, filter looks at each record individually 
+      to determine whether or not the record should be forwarded to downstream processors).
+      Other operators, like count, are stateful since they require knowledge of previous events
+      (count needs to know how many events it has seen so far in order to track the num ber of messages).
