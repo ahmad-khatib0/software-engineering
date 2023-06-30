@@ -117,3 +117,24 @@ GlobalKTable: similar to a KTable, except each GlobalKTable contains a
       to determine whether or not the record should be forwarded to downstream processors).
       Other operators, like count, are stateful since they require knowledge of previous events
       (count needs to know how many events it has seen so far in order to track the num ber of messages).
+
+
+
+
+ +--------------------------------------------------------------------------------------------+
+ | // Avro is a popular format in the Kafka community, largely due to its compact byte        |
+ | // representation (which is advantageous for high throughput applications), native support |
+ | // for record schemas, and a schema management tool called Schema Registry                 |
+ | // There are other advantages, as well. For example, some Kafka Connectors can             |
+ | // use Avro schemas to automatically infer the table structure of downstream data stores,  |
+ | // so encoding our output records in this format can help with data integration downstream.|
+ +--------------------------------------------------------------------------------------------+
+
+in avro file: 
+
+"namespace": "com.magicalpipelines.model",
+# The desired package name for your data class.
+
+"name": "EntitySentiment",
+# The name of the Java class that will contain the Avro-based data model. 
+# This class will be used in subsequent stream processing steps.
