@@ -1,5 +1,6 @@
 package com.magicalpipelines.model;
 
+// The Product.java data class will be used to represent records in the products topic.
 public class Product {
 
   private Long id;

@@ -1,5 +1,7 @@
 package com.magicalpipelines.model;
 
+// The ScoreEvent.java data class will be used to represent records in the
+// score-events topic.
 public class ScoreEvent {
   private Long playerId;
   private Long productId;

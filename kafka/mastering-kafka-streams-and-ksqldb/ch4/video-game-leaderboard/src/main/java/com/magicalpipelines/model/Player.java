@@ -1,5 +1,6 @@
 package com.magicalpipelines.model;
 
+// The Player.java data class will be used to represent records in the players topic.
 public class Player {
   private Long id;
   private String name;
