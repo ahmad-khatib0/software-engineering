@@ -138,3 +138,12 @@ in avro file:
 "name": "EntitySentiment",
 # The name of the Java class that will contain the Avro-based data model. 
 # This class will be used in subsequent stream processing steps.
+
+
+
+
+To support stateful operations, we need a way of storing and retrieving the remembered data, or state, 
+    required by each stateful operator in our application (e.g. count, aggregate, join, etc). 
+    The storage abstraction that addresses these needs in Kafka Streams is called a state store, 
+    and since a single Kafka Streams application can leverage many stateful operators, 
+    a single application may contain several state stores.

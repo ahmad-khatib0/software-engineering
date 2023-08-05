@@ -12,12 +12,26 @@ plugins {
 
     // Apply the application plugin to add support for building a CLI application.
     id 'application'
+
+    // https://plugins.gradle.org/plugin/com.github.sherter.google-java-format
+    id 'com.github.sherter.google-java-format' version '0.8'
+
+    // https://plugins.gradle.org/plugin/net.ltgt.errorprone
+    id 'net.ltgt.errorprone' version '0.6.1'
 }
+
+ext {
+  // https://search.maven.org/artifact/org.apache.kafka/kafka-streams
+  kafkaVersion = '2.7.0'
+}
+
 
 repositories {
     // Use jcenter for resolving dependencies.
     // You can declare any Maven/Ivy/file repository here.
     jcenter()
+    mavenLocal()
+    mavenCentral()
 }
 
 dependencies {
@@ -29,6 +43,24 @@ dependencies {
 
     // Use JUnit Jupiter Engine for testing.
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.5.2'
+
+    implementation "org.apache.kafka:kafka-streams:${kafkaVersion}"
+
+    // logging
+    implementation 'org.slf4j:slf4j-api:1.7.3'
+    implementation 'ch.qos.logback:logback-classic:1.2.3'
+
+    // required for custom serdes
+    implementation 'com.google.code.gson:gson:2.8.5'
+
+    // required for interactive queries (server)
+    implementation 'io.javalin:javalin:3.12.0'
+    // required for interactive queries (client)
+    implementation 'com.squareup.okhttp3:okhttp:4.9.0'
+
+    errorprone 'com.google.errorprone:error_prone_core:2.3.2'
+    errorproneJavac 'com.google.errorprone:javac:9+181-r4173-1'
+
 }
 
 application {
@@ -36,7 +68,41 @@ application {
     mainClassName = 'com.magicalpipelines.App'
 }
 
+tasks.withType(JavaCompile).configureEach { javaCompile ->
+  javaCompile.dependsOn 'googleJavaFormat'
+  options.compilerArgs << "-Xlint:deprecation"
+  options.encoding = 'UTF-8'
+  options.errorprone {
+    disableWarningsInGeneratedCode = true
+    excludedPaths = '.*/build/generated/.*'
+  }
+}
+
+task runFirst(type: JavaExec) {
+  main = application.mainClassName
+  classpath = sourceSets.main.runtimeClasspath 
+  systemProperties = [
+    'host': 'localhost',
+    'port': '7000',
+    'stateDir': '/tmp/kafka-streams'
+  ]
+}
+
+task runSecond(type: JavaExec) {
+  main = application.mainClassName
+  classpath = sourceSets.main.runtimeClasspath 
+  systemProperties = [
+    'host': 'localhost',
+    'port': '7100',
+    'stateDir': '/tmp/kafka-streams2'
+  ]
+}
+
+run.dependsOn runFirst
+
 test {
-    // Use junit platform for unit tests
     useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
