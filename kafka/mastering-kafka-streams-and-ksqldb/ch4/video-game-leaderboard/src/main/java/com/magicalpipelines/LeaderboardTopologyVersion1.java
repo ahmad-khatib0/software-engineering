@@ -19,11 +19,17 @@ public class LeaderboardTopologyVersion1 {
   public static Topology build() {
     StreamsBuilder builder = new StreamsBuilder();
 
+    // Use a KStream to represent data in the score-events topic, which is currently
+    // unkeyed.
     KStream<byte[], ScoreEvent> scoreEvents = builder.stream("score-events",
         Consumed.with(Serdes.ByteArray(), JsonSerdes.ScoreEvent()));
 
+    // Create a partitioned (or sharded) table for the players topic, using the
+    // KTable abstraction.
     KTable<String, Player> players = builder.table("players", Consumed.with(Serdes.String(), JsonSerdes.Player()));
 
+    // Create a GlobalKTable for the products topic, which will be replicated in
+    // full to each application instance.
     GlobalKTable<String, Product> products = builder.globalTable("products",
         Consumed.with(Serdes.String(), JsonSerdes.Product()));
 

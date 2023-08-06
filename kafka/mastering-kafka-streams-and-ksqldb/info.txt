@@ -169,3 +169,36 @@ Perhaps a more important consideration when choosing between a KTable or
 
 A GlobalKTable should be used when your keyspace is small, you want to avoid the co-partitioning
 requirements of a join and when time synchronization is not needed.
+
+
+Kafka Streams includes three different join operators for joining streams and tables: 
+   1- Inner join. The join is triggered when the input records 
+      on both sides of the join share the same key.
+
+   2- Left join. The join semantics are different depending on the type of join:
+      a- for stream-stream joins - a join is triggered when a record on the left side of the join is
+         received. If there is no record with the same key on the right side of the join, then the
+         right value is set to null.
+      b- for stream-stream and table-table joins - same semantics as a stream-stream left join
+         (see above), except an input on the right side of the join can also trigger a lookup. If
+         the right side triggers the join and there is no matching key on the left side, then the
+         join will not produce a result.
+    
+   3- Outer join. The join is triggered when a record on the either side of the join 
+      is received. If there is no matching record with the same key on the opposite 
+      side of the join, then the corresponding value is set to null. 
+
+To ensure related events are routed to the same partition, we must ensure the follow-
+  ing co-partitioning requirements are met:
+  1- Records on both sides must be keyed by the same field, and must be partitioned on that 
+     key using the same partitioning strategy
+  2- The input topics on both sides of the join must contain the same number of partitions 
+
+
+When we add a key-changing operator to our topology, the underlying data will be marked
+    for repartitioning. This means that as soon as we add a downstream operator that reads the
+    new key, Kafka Streams will:
+    send the rekeyed data to an internal repartition topic re-read the newly rekeyed data back 
+    into Kafka Streams This process ensures related records (i.e. records that share the same key) 
+    will be processed by the same task in subsequent topology steps. However, the network trip required
+    for rerouting data to a special repartition topic means that rekey operations can be expensive.
