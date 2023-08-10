@@ -1,0 +1,63 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2022-04-10 00:32+0300\n"
+"PO-Revision-Date: 2022-04-10 00:33+0300\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.0.1\n"
+"X-Poedit-Basepath: ../../..\n"
+"X-Poedit-KeywordsList: __\n"
+"X-Poedit-SearchPath-0: index.php\n"
+"X-Poedit-SearchPath-1: about.php\n"
+
+#: about.php:11 index.php:66
+msgid "Example"
+msgstr "Ejemplo"
+
+#: about.php:16
+msgid "About"
+msgstr "Sobre"
+
+#: index.php:73
+msgid "Home"
+msgstr "Inicio"
+
+#: index.php:77
+msgid "HELLO AND WELCOME"
+msgstr "HOLA Y BIENVENIDOS"
+
+#: index.php:81
+#, fuzzy
+#| msgid "Thank You"
+msgid "thank-you"
+msgstr "Muchas gracias"
+
+#: index.php:83
+#, php-format
+msgid "Welcome, %s"
+msgstr "Bienvenido/a, %s"
+
+#: index.php:85
+#, php-format
+msgid "You have %d message"
+msgid_plural "You have %d messages"
+msgstr[0] "Tienes %d mensaje"
+msgstr[1] "Tienes %d mensaje"
+
+#: index.php:102 index.php:120
+msgid "Title"
+msgstr "Título"
+
+#: index.php:103 index.php:121
+msgid "Description"
+msgstr "Descripción"
+
+#: index.php:104 index.php:122
+msgid "Size"
+msgstr "Tamaño"

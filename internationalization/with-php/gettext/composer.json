@@ -1,0 +1,12 @@
+{
+  "require": {
+    "ipinfo/ipinfo": "^2.3",
+    "phpmyadmin/motranslator": "^5.2",
+    "erusev/parsedown": "^1.7"
+  },
+  "autoload": {
+    "psr-4": {
+      "": "src"
+    }
+  }
+}

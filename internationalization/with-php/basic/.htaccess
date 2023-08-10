@@ -1,0 +1,4 @@
+RewriteEngine on
+RewriteRule ^([a-z]{2})/(.*)$ /$2?lang=$1 [L,NC,QSA]
+# MATCH any url starts with 2 letters and slash 
+RewriteRule ^([a-z]{2})$ index.php?lang=$1 [L,NC,QSA]

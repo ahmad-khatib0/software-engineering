@@ -1,0 +1,5 @@
+{
+    "require": {
+        "ipinfo/ipinfo": "^2.3"
+    }
+}

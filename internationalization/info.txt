@@ -1,0 +1,5 @@
+ISO 639-1 is the standard for the shortcuts of languages names(ie Arabic => ar)
+
+locales/es or if you wanna create it with region support, locales/es_ES 
+locales/es/LC_MESSAGES ,LC_MESSAGES folder should to be exactly, or gettext won't work 
+gettext('Home') , this is the default language , 
