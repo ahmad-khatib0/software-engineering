@@ -1,0 +1,44 @@
+
+Every thread has a priority (by default 5, range 0 to 10). A thread inherits its priority
+  from its parent thread. Higher priority threads get scheduled more frequently than lower 
+  priority threads, but in most applications having all threads as the default priority suffices.
+
+The scheduler cycles threads through four distinct states, based on their behavior These are:
+
+Created
+  A thread object has been created but its start() method has not been invoked.
+  Once start() is invoked, the thread enters the runnable state.
+  
+Runnable
+  A thread is able to run. The scheduler will choose which thread(s) to execute in
+  a first-in, first-out (FIFO) manner—one thread can be allocated at any time to
+  each core in the node. Threads then execute until they block (e.g., on a synchron
+  ized statement), execute a yield(), suspend(), or sleep() statement, the run()
+  method terminates, or they are preempted by the scheduler. Preemption occurs
+  when a higher priority thread becomes runnable, or when a system-specific time
+  period, known as a time slice, expires. Preemption based on time slicing allows
+  the scheduler to ensure that all threads eventually get a chance to execute—no
+  execution-hungry threads can hog the CPU.
+  
+Blocked
+  A thread is blocked if it is waiting for a lock, a notification event to occur (e.g.,
+  sleep timer to expire, resume() method executed), or is waiting for a network or
+  disk request to complete. When the specific event a blocked thread is waiting for
+  occurs, it moves back to the runnable state.
+  
+Terminated
+  A thread’s run() method has completed or it has called the stop() method. 
+  The thread will no longer be scheduled.
+
+
+
+Every thread consumes
+  memory; for example, the stack size for a thread is typically around 1 MB. Also,
+  when we switch execution context to run a new thread, this consumes CPU cycles. If
+  our systems create threads in an undisciplined manner, we will eventually run out of
+  memory and the system will crash. Thread pools allow us to control the number of
+  threads we create and utilize them efficiently.
+
+
+
+
