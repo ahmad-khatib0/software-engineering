@@ -1,0 +1,76 @@
+
+When discussing how Morse code works, people don’t talk about “short blinks” and “long blinks.” 
+  Instead, they refer to “dots” and “dashes” because that’s a convenient way of showing the codes 
+  on the printed page. In Morse code, every letter of the alphabet corresponds to a short 
+  series of dots and dashes, 
+
+Sending Morse code with a flashlight requires turning the flashlight switch on and off quickly for 
+  a dot, and somewhat longer for a dash. To send an A, for example, you turn the flashlight on and 
+  off quickly and then on and off not quite as quickly, followed by a pause before the next character. 
+  By convention, the length of a dash should be about three times that of a dot. The person on the 
+  receiving end sees the short blink and the long blink and knows that it’s an A.
+
+Receiving Morse code and translating it back into words is considerably harder and more time consuming 
+  than sending because you must work backward to figure out the letter that corresponds to a 
+  particular coded sequence of dots and dashes. If you don’t have the codes memorized and you receive 
+  a dash-dot-dash-dash, you have to scan through the table letter by letter before you finally 
+  discover that it’s the letter Y. The problem is that we have a table that provides this translation:
+      Alphabetical letter → Morse code dots and dashes
+  But we don’t have a table that lets us go backward:
+      Morse code dots and dashes → Letter of the alphabet
+
+Morse code is said to be binary (literally meaning two by two) because the components of the code 
+  consist of only two things—a dot and a dash. That’s similar to a coin, which can land only on 
+  the head side or the tail side. Coins that are flipped ten times can have 1024 different 
+  sequences of heads and tails.
+
+
+Braille and Binary Codes:
+We know that there are six dots and that each dot can be either flat or raised, so the total number 
+  of combinations of six flat and raised dots is 2 × 2 × 2 × 2 × 2 × 2, or 26, or 64. Thus, the 
+  system of Braille is capable of representing 64 unique codes. It’s not necessary for all 64 codes 
+  to be used in Braille, but 64 is definitely the upper limit imposed by the six-dot pattern.
+
+Upon close examination, you’ll discover a pattern in the Braille codes for the 25 lowercase letters. 
+  The first row (letters a through j) uses only the top four spots in the cell—dots 1, 2, 4, and 5. 
+  The second row (letters k through t) duplicates the first row except that dot 3 is also raised. 
+  The third row (u through z) is the same except that dots 3 and 6 are raised.
+
+Since the days of Louis Braille, the Braille code has been expanded in various ways, including 
+  systems to notate mathematics and music. Currently the system used most often in published English 
+  text is called Grade 2 Braille. Grade 2 Braille uses many contractions in order to use less paper 
+  and to speed reading. For example, if letter codes appear by themselves, they stand for common words.
+
+As early as 1855, some advocates of Braille began expanding the system with another row of two dots. 
+  Eight-dot Braille has been used for some special purposes, such as music, stenography, and Japanese 
+  kanji characters. Because it increases the number of unique codes to 28, or 256,
+
+
+Anatomy of a Flashlight:
+
+Most Americans believe that the incandescent lightbulb was invented by Thomas Edison, while the
+  British are quite certain that Joseph Swan was responsible. In truth, many other scientists and 
+  inventors made crucial strides before either Edison or Swan got involved.
+
+Protons and electrons have a characteristic called charge. Protons are said to have a positive (+) 
+  charge and electrons are said to have a negative (−) charge, but the symbols don’t mean plus and 
+  minus in the arithmetical sense, or that protons have something that electrons don’t. 
+  The + and − symbols indicate simply that protons and electrons are opposite in some way. 
+  This opposite characteristic manifests itself in how protons and electrons relate to each other.
+
+The batteries used in flashlights are usually cylindrical and labeled D, C, A, AA, or AAA 
+  depending on the size. The flat end of the battery is labeled with a minus sign (−); the 
+  other end has a little protrusion labeled with a plus sign (+).
+
+To get one amp of current, you need over 6 quintillion electrons flowing past a 
+  particular point per second. That’s 6 followed by 18 zeros, or 6 billion billions.
+
+we don’t actually add and multiply in Boolean algebra. Instead, the + and × symbols mean something 
+  else entirely. The + symbol in Boolean algebra means a union of two classes. A union of two classes 
+  is everything in the first class combined with everything in the second class. For example, 
+  B + W represents the class of all cats that are either black or white.
+
+
+
+
+
