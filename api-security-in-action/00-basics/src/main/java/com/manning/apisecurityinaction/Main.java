@@ -3,11 +3,14 @@ package com.manning.apisecurityinaction;
 import static spark.Spark.after;
 import static spark.Spark.afterAfter;
 import static spark.Spark.before;
+import static spark.Spark.delete;
 import static spark.Spark.exception;
+import static spark.Spark.get;
 import static spark.Spark.halt;
 import static spark.Spark.internalServerError;
 import static spark.Spark.notFound;
 import static spark.Spark.post;
+import static spark.Spark.secure;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -18,24 +21,40 @@ import org.h2.jdbcx.JdbcConnectionPool;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.common.util.concurrent.RateLimiter;
+import com.manning.apisecurityinaction.controller.AuditController;
+import com.manning.apisecurityinaction.controller.ModeratorController;
 import com.manning.apisecurityinaction.controller.SpaceController;
+import com.manning.apisecurityinaction.controller.UserController;
 
 import spark.Request;
 import spark.Response;
 
 public class Main {
   public static void main(String... args) throws Exception {
+    secure("localhost.p12", "changeit", null, null);
+
     // Initialize the database schema as the privileged user
     var datasource = JdbcConnectionPool.create("jdbc:h2:mem:natter", "natter", "password");
     var database = Database.forDataSource(datasource);
+    createTables(database);
 
     datasource = JdbcConnectionPool.create("jdbc:h2:mem:natter", "natter_api_user", "password");
     // Switch to the natter_api_user and recreate the database objects.
     database = Database.forDataSource(datasource);
 
-    createTables(database);
+    var spacesController = new SpaceController(database);
+    var userController = new UserController(database);
+    var auditController = new AuditController(database);
+    var moderatorController = new ModeratorController(database);
 
-    var spaceController = new SpaceController(database);
+    var rateLimiter = RateLimiter.create(2.0d);
+    before((request, response) -> {
+      if (!rateLimiter.tryAcquire()) {
+        response.header("Retry-After", "2");
+        halt(429);
+      }
+    });
 
     before(((request, response) -> {
       if (request.requestMethod().equals("POST") && !"application/json".equals(request.contentType())) {
@@ -55,12 +74,36 @@ public class Main {
       // sandbox Disables scripts and other potentially dangerous content from being
       // executed.
       response.header("Server", "");
+      // response.header("Strict-Transport-Security", "max-age=31536000");
+      // instruct the browser to always use the HTTPS version in future
     });
 
-    post("/spaces", spaceController::createSpace);
+    before(userController::authenticate);
+    before(auditController::auditRequestStart); // must be after the authenticate
+    afterAfter(auditController::auditRequestEnd);
+
+    // For each operation, you add a before() filter that
+    // ensures the user has correct permissions.
+    before("/spaces/:spaceId/messages", userController.requirePermission("POST", "w"));
+    post("/spaces/:spaceId/messages", spacesController::postMessage);
+    before("/spaces/:spaceId/messages/*", userController.requirePermission("GET", "r"));
+    get("/spaces/:spaceId/messages/:msgId", spacesController::readMessage);
+    before("/spaces/:spaceId/messages", userController.requirePermission("GET", "r"));
+    get("/spaces/:spaceId/messages", spacesController::findMessages);
+    before("/spaces/:spaceId/members", userController.requirePermission("POST", "rwd"));
+    post("/spaces/:spaceId/members", spacesController::addMember);
+
+    before("/spaces/:spaceId/messages/*", userController.requirePermission("DELETE", "d"));
+    delete("/spaces/:spaceId/messages/:msgId", moderatorController::deletePost);
+
+    post("/spaces", spacesController::createSpace);
+    post("/users", userController::registerUser);
+
     after((request, response) -> {
       response.type("application/json");
     });
+
+    get("/logs", auditController::readAuditLog);
 
     internalServerError(new JSONObject().put("error", "internal server error").toString());
     notFound(new JSONObject().put("error", "not found").toString());

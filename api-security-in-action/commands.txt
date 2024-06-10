@@ -4,3 +4,14 @@ $ mvn archetype:generate \
    -DartifactId=natter-api \
    -DarchetypeArtifactId=maven-archetype-quickstart \
    -DarchetypeVersion=1.4 -DinteractiveMode=false
+
+
+$ for i in {1..5} do curl -i -d "{\"owner\":\"test\",\"name\":\"space$i\"}" \
+ -H ‘Content-Type: application/json’ http://localhost:4567/spaces; done
+
+# For Java, you need the certificate in PKCS#12 format
+$ mkcert -pkcs12 localhost
+
+# remove the certificate from os 
+$ mkcert -uninstall
+

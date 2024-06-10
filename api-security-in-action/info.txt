@@ -143,3 +143,19 @@ NOTE
   the X-XSS-Protection: 0 header as shown previously.
 
 
+In a DNS amplification attack, the attacker sends the same DNS query to many DNS servers, spoofing their 
+  IP address to look like the request came from the victim. By carefully choosing the DNS query, the 
+  server can be tricked into replying with much more data than was in the original query, flooding 
+  the victim with traffic
+
+Adding a HSTS header for localhost is not a good idea as it will prevent you from running development servers 
+  over plain HTTP until the max-age attribute expires. If you want to try it out, set a short max-age value.
+
+In a production environment you typically will want to send audit logs to a centralized log collection and 
+  analysis tool, known as a SIEM (Security Information and Event Management) system, so they can be 
+  correlated with logs from other systems and analyzed for potential threats and unusual behavior.
+
+DEFINITION 
+  A privilege escalation (or elevation of privilege) occurs when a user with limited permissions can exploit 
+  a bug in the system to grant themselves or somebody else more permissions than they have been granted.
+
