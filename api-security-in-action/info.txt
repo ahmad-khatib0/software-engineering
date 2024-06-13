@@ -159,3 +159,118 @@ DEFINITION
   A privilege escalation (or elevation of privilege) occurs when a user with limited permissions can exploit 
   a bug in the system to grant themselves or somebody else more permissions than they have been granted.
 
+Session fixation attacks
+  After the user authenticates, the CookieTokenStore then asks for a new session by calling 
+  request.session(true). If the request did not have an existing session cookie, then this will create a 
+  new session. But if the request already contains an existing session cookie, then Spark will return that 
+  existing session and not create a new one. This can create a security vulnerability if an attacker is able 
+  to inject their own session cookie into another user’s web browser. Once the victim logs in, the API will 
+  change the username attribute in the session from the attacker’s username to the victim’s username.
+  The attacker’s session token now allows them to access the victim’s account
+
+DEFINITION
+ Sub-domain hijacking (or sub-domain takeover) occurs when an attacker is able to claim an abandoned web host that 
+ still has valid DNS records configured. This typically occurs when a temporary site is created on a shared 
+ service like GitHub Pages and configured as a sub-domain of the main website. When the site is no longer 
+ required, it is deleted but the DNS records are often forgotten. An attacker can discover these DNS records 
+ and re-register the site on the shared web host, under the attacker's control. They can then serve their 
+ content from the compromised sub-domain.
+
+Some browsers also support naming conventions for cookies: 
+  __Secure- Enforces that the cookie must be set with the Secure attribute and set by a secure origin.
+  __Host-  Enforces the same protections as __Secure-, but also enforces that the cookie is a host-only 
+   cookie (has no Domain attribute). This ensures that the cookie cannot be overwritten by a cookie from a 
+   sub-domain and is a significant protection against sub-domain hijacking attacks.
+NOTE: These prefixes start with two underscore characters and include a hyphen at the end. For example, 
+      if your cookie was previously named “session,” then the new name with the host prefix: “__Host-session.”
+
+  Cross-Site Request Forgery attacks
+In many cases browsers will happily let a script from another website make cross-origin requests to your 
+  API; it just prevents them from reading any response. Such an attack is known as Cross-Site Request 
+  Forgery because the malicious site can create fake requests to your API that appear to come from a
+  genuine client.
+DEFINITION Cross-site request forgery (CSRF, pronounced “sea-surf”) occurs when an attacker makes a 
+  cross-origin request to your API and the browser sends cookies along with the request. The request is 
+  processed as if it was genuine unless extra checks are made to prevent these requests.
+
+  SameSite cookies
+   When a cookie is marked as SameSite, it will only be sent on requests that originate from the same
+   registerable domain that originally set the cookie. This means that when the malicious site from Polly’s 
+   link tries to send a request to the Natter API, the browser will send it without the session cookie 
+   and the request will be rejected by the server
+DEFINITION
+   A SameSite cookie will only be sent on requests that originate from the same domain that originally set 
+   the cookie. Only the registerable domain is examined, so api.payments.example.com and www .example.com
+   are considered the same site, as they both have the registerable domain of example.com. On the other hand, 
+   www.example.org (different suffix) and www.different.com are considered different sites. Unlike an origin, 
+   the protocol and port are not considered when making same-site decisions.
+
+The public suffix list
+  SameSite cookies rely on the notion of a registerable domain, which consists of a top-level domain plus 
+  one more level. For example, .com is a top-level domain, so example.com is a registerable domain, but 
+  foo.example.com typically isn't. The situ- ation is made more complicated because there are some domain 
+  suffixes such as .co.uk, which aren’t strictly speaking a top-level domain (which would be .uk) but should 
+  be treated as if they are. There are also websites like github.io that allow any- body to sign up and 
+  register a sub-domain, such as neilmadden.github.io, making github.io also effectively a top-level domain.
+  Because there are no simple rules for deciding what is or isn’t a top-level domain, Mozilla maintains an 
+  up-to-date list of effective top-level domains (eTLDs), known as the public suffix list (https://publicsuffix.org).
+  A registerable domain in SameSite is an eTLD plus one extra level, or eTLD + 1 for short. You can submit 
+  your own website to the public suffix list if you want your sub-domains to be treated as effectively 
+  independent websites with no cookie sharing between them, but this is quite a drastic measure to take.
+
+To mark a cookie as SameSite, you can add either SameSite=lax or SameSite=strict on the Set-Cookie header, 
+  just like marking a cookie as Secure or HttpOnly (section 4.3.2). The difference between the two modes 
+  is subtle. In strict mode, cookies will not be sent on any cross-site request, including when a user just 
+  clicks on a link from one site to another. This can be a surprising behavior that might break traditional 
+  websites. To get around this, lax mode allows cookies to be sent when a user directly clicks on a link but 
+  will still block cookies on most other cross-site requests. Strict mode should be preferred if you can 
+  design your UI to cope with missing cookies when following links.
+  For example, many single-page apps work fine in strict mode because the first request
+  when following a link just loads a small HTML template and the JavaScript imple-
+  menting the SPA. Subsequent calls from the SPA to the API will be allowed to include
+  cookies as they originate from the same site.
+
+DEFINITION
+  SHA-256 is a cryptographically secure hash function designed by the US National Security Agency that 
+  produces a 256-bit (32-byte) output value. SHA-256 is one variant of the SHA-2 family of secure hash algorithms
+  specified in the Secure Hash Standard (https://doi.org/10.6028/NIST.FIPS .180-4), which replaced the older 
+  SHA-1 standard (which is no longer considered secure). SHA-2 specifies several other variants that produce 
+  different output sizes, such as SHA-384 and SHA-512. There is also now a newer SHA-3 standard (selected 
+  through an open international competition), with variants named SHA3-256, SHA3-384, and so on, but SHA-2 
+  is still considered secure and is widely implemented.
+
+Timing attacks
+  A timing attack works by measuring tiny differences in the time it takes a computer to process different inputs
+  to work out some information about a secret value that the attacker does not know. Timing attacks can measure 
+  even very small differences in the time it takes to perform a computation, even when carried out over the 
+  internet. The classic paper Remote Timing Attacks are Practical by David Brumley and Dan Boneh of Stanford 
+  (2005; https://crypto.stanford.edu/~dabo/papers/ssl-timing.pdf) demonstrated that timing attacks are practical 
+  for attacking computers on the same local network, and the techniques have been developed since then. Recent
+  research shows you can remotely measure timing differences as low as 100 nanoseconds over the internet 
+  (https://papers.mathyvanhoef.com/usenix2020.pdf). Consider what would happen if you used the normal String 
+  equals method to compare the hash of the session ID with the anti-CSRF token received in a header. In most 
+  programming languages, including Java, string equality is implemented with a loop that terminates as soon as 
+  the first non-matching character is found. This means that the code takes very slightly longer to match if 
+  the first two characters match than if only a single character matches. A sophisticated attacker can measure 
+  even this tiny difference in timing. They can then simply keep sending guesses for the anti-CSRF token. First, 
+  they try every possible value for the first character (64 possibilities because we are using base64-encoding) 
+  and pick the value that took slightly longer to respond. Then they do the same for the second character, 
+  and then the third, and so on. By finding the character that takes slightly longer to respond at each step, 
+  they can slowly recover the entire anti-CSRF token using time only proportional to its length, rather than 
+  needing to try every possible value. For a 10-character Base64-encoded string, this changes the number of 
+  guesses needed from around 64 10 (over 1 quintillion possibilities) to just 640. Of course, this attack 
+  needs many more requests to be able to accurately measure such small timing differences (typically many 
+  thousands of requests per character), but the attacks are improving all the time. The solution to such 
+  timing attacks is to ensure that all code that performs comparisons or lookups using secret values take a 
+  constant amount of time regardless of the value of the user input that is supplied. To compare two strings 
+  for equality, you can use a loop that does not terminate early when it finds a wrong value. The following 
+  code uses bitwise XOR (^) and OR (|) operators to check if two strings are equal. The value of c will only 
+  be zero at the end if every single character was identical. 
+    if (a.length != b.length) return false;
+      int c = 0;
+    for (int i = 0; i < a.length; i++)
+      c |= (a[i] ^ b[i]);
+    return c == 0;
+  This code is very similar to how MessageDigest.isEqual is implemented in Java. Check the documentation 
+  for your programming language to see if it offers a similar facility.
+

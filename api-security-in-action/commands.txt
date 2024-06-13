@@ -15,3 +15,12 @@ $ mkcert -pkcs12 localhost
 # remove the certificate from os 
 $ mkcert -uninstall
 
+# first send the call and store the created cookies in tmp file
+$ curl -i -c /tmp/cookies -u test:password -H 'Content-Type: application/json' \
+  -X POST https://localhost:4567/sessions
+# second use this file to send the cookies back 
+$ curl -b /tmp/cookies -H 'Content-Type: application/json' \
+  -d '{"name":"test space","owner":"test"}' https://localhost:4567/spaces
+
+
+

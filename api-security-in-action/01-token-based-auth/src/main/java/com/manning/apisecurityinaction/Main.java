@@ -25,7 +25,10 @@ import com.google.common.util.concurrent.RateLimiter;
 import com.manning.apisecurityinaction.controller.AuditController;
 import com.manning.apisecurityinaction.controller.ModeratorController;
 import com.manning.apisecurityinaction.controller.SpaceController;
+import com.manning.apisecurityinaction.controller.TokenController;
 import com.manning.apisecurityinaction.controller.UserController;
+import com.manning.apisecurityinaction.token.CookieTokenStore;
+import com.manning.apisecurityinaction.token.TokenStore;
 
 import spark.Request;
 import spark.Response;
@@ -70,9 +73,19 @@ public class Main {
       response.header("Server", "");
     });
 
+    TokenStore tokenStore = new CookieTokenStore();
+    var tokenController = new TokenController(tokenStore);
+
+    // support either method of authentication, providing flexibility for clients
     before(userController::authenticate);
+    before(tokenController::validateToken);
+
     before(auditController::auditRequestStart); // must be after the authenticate
     afterAfter(auditController::auditRequestEnd);
+
+    before("/sessions", userController::requireAuthentication);
+    post("/sessions", tokenController::login);
+    delete("/sessions", tokenController::logout);
 
     before("/spaces/:spaceId/messages", userController.requirePermission("POST", "w"));
     post("/spaces/:spaceId/messages", spacesController::postMessage);
