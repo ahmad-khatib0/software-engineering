@@ -531,3 +531,10 @@ What key size should you use?
    a risk, but you should carefully consider the possibility before enabling compression. Unless you really 
    need to save space, you should leave compression disabled.
 
+
+  In some countries, banks are being required to provide secure API access to transactions and payment 
+   services to third-party apps and services. The UK’s Open Banking initiative and the European Payment 
+   Services Directive 2 (PSD2) regulations are examples, both of which mandate the use of OAuth2.
+
+
+
