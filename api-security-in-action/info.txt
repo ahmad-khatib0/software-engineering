@@ -3,6 +3,11 @@
       will cause the browser to treat it as a separate origin.)                                     
  └───────────────────────────────────────────────────────────────────────────────────────────────┘
 
+ ╒═══════════════════════════════════════════════════════════════════════════--═╕
+    DEFINITION                                                                 
+     A marker interface is an interface that defines no new methods. It is used 
+     purely to indicate that the implementation has certain desirable properties.
+ └───────────────────────────────────────────────────────────────────────────--─┘
 
 ## There are several popular approaches to exposing remote APIs:
   The gRPC framework from Google (https://grpc.io) is an example of a modern RPC approach. The older 
@@ -356,6 +361,173 @@ Encrypting database attributes
   decrypting the responses read from the database.
 
 
+  JSON Web Tokens
+  A standard header format that contains metadata about the JWT, such as which
+   MAC or encryption algorithm was used.
+  A set of standard claims that can be used in the JSON content of the JWT, with defined meanings, such 
+   as exp to indicate the expiry time and sub for the subject, just as you have been using.
+  A wide range of algorithms for authentication and encryption, as well as digital signatures and 
+   public key encryption that are covered later in this book.
+
+The JWT standards zoo
+  While JWT itself is just one specification (https://tools.ietf.org/html/rfc7519), it builds on a collection 
+  of standards collectively known as JSON Object Signing and Encryption (JOSE). JOSE itself consists of 
+  several related standards:
+    JSON Web Signing (JWS, https://tools.ietf.org/html/rfc7515) defines how JSON objects can be 
+     authenticated with HMAC and digital signatures.
+    JSON Web Encryption (JWE, https://tools.ietf.org/html/rfc7516) defines how to encrypt JSON objects.
+    JSON Web Key (JWK, https://tools.ietf.org/html/rfc7517) describes a standard format 
+     for cryptographic keys and related metadata in JSON.
+    JSON Web Algorithms (JWA, https://tools.ietf.org/html/rfc7518) then specifies signing 
+     and encryption algorithms to be used.
+++ JOSE has been extended over the years by new specifications to add new algorithms
+   and options. It is common to use JWT to refer to the whole collection of specifica-
+   tions, although there are uses of JOSE beyond JWTs.
+
+DEFINITION
+   A replay attack occurs when an attacker captures a token sent by a
+   legitimate party and later replays it on their own request.
+
+  In JWT:  The issuer and audience claims can be used to prevent a different form of replay attack, in 
+   which the captured token is replayed against a different API than the originally intended recipient. If 
+   the attacker replays the token back to the original issuer, this is known as a reflection attack, and can 
+   be used to defeat some kinds of authentication protocols if the recipient can be tricked into accepting 
+   their own authentication messages. By verifying that your API server is in the audience list, and that the 
+   token was issued by a trusted party, these attacks can be defeated.
+   
+╒═══════════════════════════════════════════════════════════════════════════════════════════════════════════╕
+DEFINITION                                                                                                
+  A headless JWT is a JWT with the header removed. The recipient recreates the header from expected values. 
+  For simple use cases where you control the sender and recipient this can reduce the size and attack surface
+  of using JWTs but the resulting JWTs are nonstandard. Where headless JWTs                                 
+  can’t be used, you should strictly validate all header values.                                            
+└───────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 
 
+DEFINITION
+  Cryptographic agility is the ability to change the algorithm used for securing messages or tokens 
+  in case weaknesses are discovered in one algorithm or a more performant alternative is required.
+
+Although this is a good idea (Cryptographic agility), the design in JOSE is less than ideal because the 
+  recipient must rely on the sender to tell them which algorithm to use to authenticate the message. This 
+  violates the principle that you should never trust a claim that you have not authenticated, and yet you 
+  cannot authenticate the JWT until you have processed this claim! This weakness was what allowed Tim McClean 
+  to confuse JWT libraries by changing the alg header.
+
+DEFINITION
+  Key rotation is the process of periodically changing the keys used to protect messages and tokens. 
+  Changing the key regularly ensures that the usage limits for a key are never reached and if any one 
+  key is compromised then it is soon replaced, limiting the time in which damage can be done.
+
+  There are several secure encryption algorithms in current use, but the most important is the Advanced 
+   Encryption Standard (AES), which was standardized in 2001 after an international competition, and is 
+   widely considered to be very secure. AES is an example of a block cipher, which takes a fixed size input 
+   of 16 bytes and produces a 16-byte encrypted output. AES keys are either 128 bits, 192 bits, or 256 bits 
+   in size. To encrypt more (or less) than 16 bytes with AES, you use a block cipher mode of operation.
+
+Authenticated encryption
+   Many encryption algorithms only ensure the confidentiality of data that has been encrypted and don’t 
+   claim to protect the integrity of that data. This means that an attacker won’t be able to read any 
+   sensitive attributes in an encrypted token, but they may be able to alter them. For example, if you know 
+   that a token is encrypted with CTR mode and (when decrypted) starts with the string user=brian, you can change
+   this to read user=admin by simple manipulation of the ciphertext even though you can’t decrypt the token. 
+   Although there isn’t room to go into the details here, this kind of attack is often covered in cryptography 
+   tutorials under the name chosen ciphertext attack.
+   To protect against spoofing and tampering threats, you should always use algorithms
+   that provide authenticated encryption. Authenticated encryption algorithms combine an
+   encryption algorithm for hiding sensitive data with a MAC algorithm, such as HMAC,
+   to ensure that the data can’t be altered or faked.
+++ DEFINITION Authenticated encryption combines an encryption algorithm with
+   a MAC. Authenticated encryption ensures confidentiality and integrity of messages.
+
+
+Authenticated encryption with NaCl
+  Because cryptography is complex with many subtle details to get right, a recent trend has been for 
+  cryptography libraries to provide higher-level APIs that hide many of these details from developers. 
+  The most well-known of these is the Networking and Cryptography Library (NaCl; https://nacl.cr.yp.to) 
+  designed by Daniel Bernstein. NaCl (pronounced “salt,” as in sodium chloride) provides high-level operations
+  for authenticated encryption, digital signatures, and other cryptographic primitives but hides many of the 
+  details of the algorithms being used. Using a high-level library designed by experts such as NaCl is the 
+  safest option when implementing cryptographic protections for your APIs and can be significantly easier 
+  to use securely than alternatives.
+++ Other cryptographic libraries designed to be hard to misuse include Google’s Tink (github.com/google/tink)  
+   and Themis from Cossack Labs (https://github.com/cossacklabs/themis). The Sodium library (libsodium.org) 
+   is a widely used clone of NaCl in C that provides many additional extensions and a simplified API with 
+   bindings for Java and other languages.
+
+
+  The five components of a JWE are:
+1 The JWE header, which is very like the JWS header, but with two additional fields: enc, which specifies 
+  the encryption algorithm, and zip, which specifies an optional compression algorithm to be applied 
+  before encryption. 
+2 An optional encrypted key. This is used in some of the more complex encryption algorithms. It is empty 
+  for the direct symmetric encryption algorithm that is covered in this chapter.
+3 The initialization vector or nonce used when encrypting the payload. Depending on the encryption method 
+  being used, this will be either a 12- or 16-byte random binary value that has been Base64url-encoded.
+4 The encrypted ciphertext.
+5 The MAC authentication tag.
+
+DEFINITION
+  An initialization vector (IV) or nonce (number-used-once) is a unique value that is provided to the cipher 
+  to ensure that ciphertext is always different even if the same message is encrypted more than once. The IV
+  should be generated using a java.security.SecureRandom or other cryptographically-secure pseudorandom 
+  number generator (CSPRNG). 3 An IV doesn’t need to be kept secret.
+
+-- JWE divides specification of the encryption algorithm into two parts:
+  The enc header describes the authenticated encryption algorithm used to encrypt the payload of the JWE.
+  The alg header describes how the sender and recipient agree on the key used to encrypt the content.
+
+
+There are a wide variety of key management algorithms for JWE, but for this chapter you will stick to direct 
+  encryption with a secret key. For direct encryption, the algorithm header is set to dir (direct). There are 
+  currently two available families of encryption methods in JOSE, both of which provide authenticated encryption:
+  A128GCM, A192GCM, and A256GCM use AES in Galois Counter Mode (GCM).
+  A128CBC-HS256, A192CBC-HS384, and A256CBC-HS512 use AES in Cipher Block Chaining (CBC) mode together 
+   with either HMAC in an EtM configuration as described in section 6.3.1.
+
+  DEFINITION
+   All the encryption algorithms allow the JWE header and IV to be included in the authentication tag 
+   without being encrypted. These are known as authenticated encryption with associated data (AEAD) algorithms.
+
+  GCM was designed for use in protocols like TLS where a unique session key is negotiated for each session 
+   and a simple counter can be used for the nonce. If you reuse a nonce with GCM then almost all security 
+   is lost: an attacker can recover the MAC key and use it to forge tokens, which is catastrophic for 
+   authentication tokens. For this reason, I prefer to use CBC with HMAC for directly encrypted JWTs, but 
+   for other JWE algorithms GCM is an excellent choice and very fast.
+
+
+What key size should you use?
+  AES allows keys to be in one of three different sizes: 128-bit, 192-bit, or 256-bit. In principle, correctly 
+  guessing a 128-bit key is well beyond the capability of even an attacker with enormous amounts of computing 
+  power. Trying every possible value of a key is known as a brute-force attack and should be impossible for 
+  a key of that size. There are three exceptions in which that assumption might prove to be wrong: 
+  A weakness in the encryption algorithm might be discovered that reduces the amount of effort required 
+   to crack the key. Increasing the size of the key provides a security margin against such a possibility.
+  New types of computers might be developed that can perform brute-force searches much quicker than existing 
+   computers. This is believed to be true of quantum computers, but it’s not known whether it will ever be 
+   possible to build a large enough quantum computer for this to be a real threat. Doubling the size of the 
+   key protects against known quantum attacks for symmetric algorithms like AES.
+  Theoretically, if each user has their own encryption key and you have millions of users, it may be possible
+   to attack every key simultaneously for less effort than you would expect from naively trying to break them 
+   one at a time. This is known as a batch attack and is described further in https://blog.cr.yp.to/20151120-batchattacks.html.
+++ At the time of writing, none of these attacks are practical for AES, and for short-lived authentication 
+   tokens the risk is significantly less, so 128-bit keys are perfectly safe. On the other hand, modern CPUs 
+   have special instructions for AES encryption so there’s very little extra cost for 256-bit keys if you 
+   want to eliminate any doubt.
+++ Remember that the JWE CBC with HMAC methods take a key that is twice the size as normal. For example, 
+   the A128CBC-HS256 method requires a 256-bit key, but this is really two 128-bit keys joined together 
+   rather than a true 256-bit key.
+
+  Compressed tokens
+   The encrypted JWT is a bit larger than either a simple HMAC token or the NaCl tokens from section 6.3.2. 
+   JWE supports optional compression of the JWT Claims Set before encryption, which can significantly reduce 
+   the size for complex tokens. But combining encryption and compression can lead to security weaknesses. 
+   Most encryption algorithms do not hide the length of the plaintext message that was encrypted, and 
+   compression reduces the size of a message based on its content. For example, if two parts of a message are 
+   identical, then it may combine them to remove the duplication. If an attacker can influence part of a 
+   message, they may be able to guess the rest of the contents by seeing how much it compresses. The CRIME 
+   and BREACH attacks (http://breachattack.com) against TLS were able to exploit this leak of information 
+   from compression to steal session cookies from compressed HTTP pages. These kinds of attacks are not always 
+   a risk, but you should carefully consider the possibility before enabling compression. Unless you really 
+   need to save space, you should leave compression disabled.
 

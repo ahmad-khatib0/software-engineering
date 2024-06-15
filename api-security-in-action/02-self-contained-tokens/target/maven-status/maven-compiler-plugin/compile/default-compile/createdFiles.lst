@@ -1,3 +1,4 @@
+com/manning/apisecurityinaction/token/AuthenticatedTokenStore.class
 com/manning/apisecurityinaction/token/HmacTokenStore.class
 com/manning/apisecurityinaction/controller/TokenController.class
 com/manning/apisecurityinaction/Main.class
@@ -10,5 +11,7 @@ com/manning/apisecurityinaction/token/TokenStore.class
 com/manning/apisecurityinaction/controller/ModeratorController.class
 com/manning/apisecurityinaction/controller/UserController.class
 com/manning/apisecurityinaction/token/DatabaseTokenStore.class
+com/manning/apisecurityinaction/token/SignedJwtTokenStore.class
 com/manning/apisecurityinaction/controller/SpaceController.class
 com/manning/apisecurityinaction/token/TokenStore$Token.class
+com/manning/apisecurityinaction/token/JsonTokenStore.class

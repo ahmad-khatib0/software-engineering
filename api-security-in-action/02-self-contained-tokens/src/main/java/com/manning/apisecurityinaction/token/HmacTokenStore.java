@@ -1,19 +1,30 @@
 package com.manning.apisecurityinaction.token;
 
 import javax.crypto.Mac;
-import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.Optional;
-
 import spark.Request;
 
-public class HmacTokenStore implements TokenStore {
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+public class HmacTokenStore implements SecureTokenStore {
+
   private final TokenStore delegate;
   private final Key macKey;
 
-  public HmacTokenStore(TokenStore delegate, Key macKey) {
+  private HmacTokenStore(TokenStore delegate, Key macKey) {
     this.delegate = delegate;
     this.macKey = macKey;
+  }
+
+  // When passed a ConfidentialTokenStore, returns a SecureTokenStore
+  public static SecureTokenStore wrap(ConfidentialTokenStore store, Key macKey) {
+    return new HmacTokenStore(store, macKey);
+  }
+
+  // When passed any other TokenStore, returns an AuthenticatedTokenStore
+  public static AuthenticatedTokenStore wrap(TokenStore store, Key macKey) {
+    return new HmacTokenStore(store, macKey);
   }
 
   @Override
@@ -28,7 +39,7 @@ public class HmacTokenStore implements TokenStore {
     try {
       var mac = Mac.getInstance(macKey.getAlgorithm());
       mac.init(macKey);
-      return mac.doFinal(tokenId.getBytes(StandardCharsets.UTF_8));
+      return mac.doFinal(tokenId.getBytes(UTF_8));
     } catch (GeneralSecurityException e) {
       throw new RuntimeException(e);
     }
@@ -37,15 +48,15 @@ public class HmacTokenStore implements TokenStore {
   @Override
   public Optional<Token> read(Request request, String tokenId) {
     var index = tokenId.lastIndexOf('.');
-    if (index == -1) {
+    if (index == -1)
       return Optional.empty();
-    }
-    var realTokenId = tokenId.substring(0, index);
 
-    var provided = Base64url.decode(tokenId.substring(index + 1));
+    var realTokenId = tokenId.substring(0, index);
+    var tag = tokenId.substring(index + 1);
+
+    var provided = Base64url.decode(tag);
     var computed = hmac(realTokenId);
 
-    // again, prevent Timing attacks
     if (!MessageDigest.isEqual(provided, computed)) {
       return Optional.empty();
     }
@@ -58,8 +69,8 @@ public class HmacTokenStore implements TokenStore {
     var index = tokenId.lastIndexOf('.');
     if (index == -1)
       return;
-
     var realTokenId = tokenId.substring(0, index);
+
     var provided = Base64url.decode(tokenId.substring(index + 1));
     var computed = hmac(realTokenId);
 

@@ -20,6 +20,8 @@ import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.util.Set;
 
+import javax.crypto.SecretKey;
+
 import org.dalesbred.Database;
 import org.dalesbred.result.EmptyResultException;
 import org.h2.jdbcx.JdbcConnectionPool;
@@ -33,7 +35,7 @@ import com.manning.apisecurityinaction.controller.SpaceController;
 import com.manning.apisecurityinaction.controller.TokenController;
 import com.manning.apisecurityinaction.controller.UserController;
 import com.manning.apisecurityinaction.token.DatabaseTokenStore;
-import com.manning.apisecurityinaction.token.HmacTokenStore;
+import com.manning.apisecurityinaction.token.EncryptedJwtTokenStore;
 
 import spark.Request;
 import spark.Response;
@@ -83,11 +85,14 @@ public class Main {
     var keyPassword = System.getProperty("keystore.password", "changeit").toCharArray();
     var keyStore = KeyStore.getInstance("PKCS12");
     keyStore.load(new FileInputStream("keystore.p12"), keyPassword);
-    var macKey = keyStore.getKey("hmac-key", keyPassword);
+    // var macKey = keyStore.getKey("hmac-key", keyPassword);
+    var encKey = keyStore.getKey("aes-key", keyPassword);
 
     var databaseTokenStore = new DatabaseTokenStore(database);
-    var tokenStore = new HmacTokenStore(databaseTokenStore, macKey);
-    var tokenController = new TokenController(tokenStore);
+    // var tokenStore = new HmacTokenStore(databaseTokenStore, macKey);
+    // var tokenController = new TokenController(tokenStore);
+    var tokenWhitelist = new DatabaseTokenStore(database);
+    var tokenController = new TokenController(new EncryptedJwtTokenStore((SecretKey) encKey, tokenWhitelist));
 
     before(userController::authenticate);
     before(tokenController::validateToken);
