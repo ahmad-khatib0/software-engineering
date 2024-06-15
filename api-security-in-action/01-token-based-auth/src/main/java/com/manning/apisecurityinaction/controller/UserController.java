@@ -67,12 +67,22 @@ public class UserController {
 
   }
 
+  // cookies based
+  // public void requireAuthentication(Request request, Response response) {
+  // if (request.attribute("subject") == null) {
+  // // it is not possible to stop the browser popping up the ugly default login
+  // box
+  // // when it receives a WWW-Authenticate header prompting it for Basic
+  // // authentication credentials
+  // // response.header("WWW-Authenticate", "Basic realm=\"/\",
+  // charset=\"UTF-8\"");
+  // halt(401);
+  // }
+  // }
+  //
   public void requireAuthentication(Request request, Response response) {
     if (request.attribute("subject") == null) {
-      // it is not possible to stop the browser popping up the ugly default login box
-      // when it receives a WWW-Authenticate header prompting it for Basic
-      // authentication credentials
-      // response.header("WWW-Authenticate", "Basic realm=\"/\", charset=\"UTF-8\"");
+      response.header("WWW-Authenticate", "Bearer");
       halt(401);
     }
   }

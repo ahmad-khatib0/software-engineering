@@ -9,11 +9,16 @@ import static spark.Spark.get;
 import static spark.Spark.halt;
 import static spark.Spark.internalServerError;
 import static spark.Spark.notFound;
+import static spark.Spark.port;
 import static spark.Spark.post;
 import static spark.Spark.secure;
+import static spark.Service.SPARK_DEFAULT_PORT;
 
+import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.KeyStore;
+import java.util.Set;
 
 import org.dalesbred.Database;
 import org.dalesbred.result.EmptyResultException;
@@ -28,6 +33,8 @@ import com.manning.apisecurityinaction.controller.SpaceController;
 import com.manning.apisecurityinaction.controller.TokenController;
 import com.manning.apisecurityinaction.controller.UserController;
 import com.manning.apisecurityinaction.token.CookieTokenStore;
+import com.manning.apisecurityinaction.token.DatabaseTokenStore;
+import com.manning.apisecurityinaction.token.HmacTokenStore;
 import com.manning.apisecurityinaction.token.TokenStore;
 
 import spark.Request;
@@ -36,6 +43,7 @@ import spark.Response;
 public class Main {
   public static void main(String... args) throws Exception {
     secure("localhost.p12", "changeit", null, null);
+    port(args.length > 0 ? Integer.parseInt(args[0]) : SPARK_DEFAULT_PORT);
 
     var datasource = JdbcConnectionPool.create("jdbc:h2:mem:natter", "natter", "password");
     var database = Database.forDataSource(datasource);
@@ -56,6 +64,7 @@ public class Main {
         halt(429);
       }
     });
+    before(new CorsFilter(Set.of("https://localhost:9999")));
 
     before(((request, response) -> {
       if (request.requestMethod().equals("POST") && !"application/json".equals(request.contentType())) {
@@ -73,7 +82,15 @@ public class Main {
       response.header("Server", "");
     });
 
-    TokenStore tokenStore = new CookieTokenStore();
+    var keyPassword = System.getProperty("keystore.password", "changeit").toCharArray();
+    var keyStore = KeyStore.getInstance("PKCS12");
+    keyStore.load(new FileInputStream("keystore.p12"), keyPassword);
+    var macKey = keyStore.getKey("hmac-key", keyPassword);
+
+    var databaseTokenStore = new DatabaseTokenStore(database);
+    // TokenStore tokenStore = databaseTokenStore;
+    // TokenStore tokenStore = new CookieTokenStore();
+    var tokenStore = new HmacTokenStore(databaseTokenStore, macKey);
     var tokenController = new TokenController(tokenStore);
 
     // support either method of authentication, providing flexibility for clients
@@ -107,6 +124,11 @@ public class Main {
     });
 
     get("/logs", auditController::readAuditLog);
+    before("/expired_tokens", userController::requireAuthentication);
+    delete("/expired_tokens", (request, response) -> {
+      databaseTokenStore.deleteExpiredTokens();
+      return new JSONObject();
+    });
 
     internalServerError(new JSONObject().put("error", "internal server error").toString());
     notFound(new JSONObject().put("error", "not found").toString());

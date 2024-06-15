@@ -5,15 +5,6 @@ function login(username, password) {
 
   fetch(apiUrl + '/sessions', {
     method: 'POST',
-    // Set the credentials field to “include” to allow the API to set cookies on the response.
-    // otherwise the cookies will not be sat from the response
-    // credentials: 'include',
-    // headers: {
-    //   'Content-Type': 'application/json',
-    //   Authorization: credentials,
-    // },
-    //
-    // token based
     headers: {
       'Content-Type': 'application/json',
       Authorization: credentials,
@@ -22,8 +13,7 @@ function login(username, password) {
     .then((res) => {
       if (res.ok) {
         res.json().then((json) => {
-          // document.cookie = 'csrfToken=' + json.token + ';Secure;SameSite=strict'
-          localStorage.setItem('token', json.token)
+          document.cookie = 'csrfToken=' + json.token + ';Secure;SameSite=strict'
           window.location.replace('/natter.html')
         })
       }

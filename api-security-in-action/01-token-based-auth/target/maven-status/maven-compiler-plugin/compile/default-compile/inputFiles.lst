@@ -1,5 +1,9 @@
 /home/ahmad-khatib/Downloads/personal/software-engineering/projects/api-security-in-action/01-token-based-auth/src/main/java/com/manning/apisecurityinaction/controller/UserController.java
 /home/ahmad-khatib/Downloads/personal/software-engineering/projects/api-security-in-action/01-token-based-auth/src/main/java/com/manning/apisecurityinaction/controller/AuditController.java
+/home/ahmad-khatib/Downloads/personal/software-engineering/projects/api-security-in-action/01-token-based-auth/src/main/java/com/manning/apisecurityinaction/token/Base64url.java
 /home/ahmad-khatib/Downloads/personal/software-engineering/projects/api-security-in-action/01-token-based-auth/src/main/java/com/manning/apisecurityinaction/Main.java
+/home/ahmad-khatib/Downloads/personal/software-engineering/projects/api-security-in-action/01-token-based-auth/src/main/java/com/manning/apisecurityinaction/token/CookieTokenStore.java
+/home/ahmad-khatib/Downloads/personal/software-engineering/projects/api-security-in-action/01-token-based-auth/src/main/java/com/manning/apisecurityinaction/token/TokenStore.java
 /home/ahmad-khatib/Downloads/personal/software-engineering/projects/api-security-in-action/01-token-based-auth/src/main/java/com/manning/apisecurityinaction/controller/SpaceController.java
 /home/ahmad-khatib/Downloads/personal/software-engineering/projects/api-security-in-action/01-token-based-auth/src/main/java/com/manning/apisecurityinaction/controller/ModeratorController.java
+/home/ahmad-khatib/Downloads/personal/software-engineering/projects/api-security-in-action/01-token-based-auth/src/main/java/com/manning/apisecurityinaction/controller/TokenController.java

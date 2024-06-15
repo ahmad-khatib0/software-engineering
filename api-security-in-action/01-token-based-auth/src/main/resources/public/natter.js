@@ -2,17 +2,22 @@ const apiUrl = 'https://localhost:4567'
 
 function createSpace(name, owner) {
   let data = { name: name, owner: owner }
-  let csrfToken = getCookie('csrfToken')
+  // let csrfToken = getCookie('csrfToken')
+  let token = localStorage.getItem('token')
 
   fetch(apiUrl + '/spaces', {
     method: 'POST',
-    credentials: 'include',
+    // cookies based
+    // credentials: 'include',
     // sets the credentials attribute to include, to ensure that HTTP Basic credentials are set on the
     // request; otherwise, they would not be, and the request would fail to authenticate.
+    //
+    // token based
     body: JSON.stringify(data),
     headers: {
       'Content-Type': 'application/json',
-      'X-CSRF-Token': csrfToken,
+      // 'X-CSRF-Token': csrfToken,
+      Authorization: 'Bearer ' + token,
     },
   })
     .then((response) => {

@@ -1,3 +1,9 @@
+ ╒═══════════════════════════════════════════════════════════════════════════════════════════════╕
+     An origin is the combination of protocol, host name, and port, so a change to any of these 
+      will cause the browser to treat it as a separate origin.)                                     
+ └───────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
 ## There are several popular approaches to exposing remote APIs:
   The gRPC framework from Google (https://grpc.io) is an example of a modern RPC approach. The older 
    SOAP (Simple Object Access Protocol) framework, which uses XML for messages, is still widely deployed.
@@ -273,4 +279,83 @@ Timing attacks
     return c == 0;
   This code is very similar to how MessageDigest.isEqual is implemented in Java. Check the documentation 
   for your programming language to see if it offers a similar facility.
+
+
+DEFINITION
+  A preflight request occurs when a browser would normally block the request for violating the same-origin 
+  policy. The browser makes an HTTP OPTIONS request to the server asking if the request should be allowed. The
+  server can either deny the request or else allow it with restrictions on the allowed headers and methods.
+
+The browser first makes an HTTP OPTIONS request to the target server. It includes the origin of the script 
+  making the request as the value of the Origin header, along with some headers indicating the HTTP method 
+  of the method that was requested (Access-Control-Request-Method header) and any nonstandard headers that 
+  were in the original request (Access-Control-Request-Headers). The server responds by sending back a 
+  response with headers to indicate which cross-origin requests it considers acceptable. If the original 
+  request does not match the server’s response, or the server does not send any CORS headers in the response,
+  then the browser blocks the request. If the original request is allowed, the API can also set CORS headers 
+  in the response to that request to control how much of the response is revealed to the client. An API might 
+  therefore agree to allow cross-origin requests with nonstandard headers but prevent the client from 
+  reading the response
+
+ ╒═══════════════════════════════════════════════════════════════════════════════════╕
+    Because cookies are considered a credential by CORS, you need to return an     
+     Access-Control-Allow-Credentials: true header from preflight requests; otherwise, 
+     the browser will not send the session cookie.                                     
+ └───────────────────────────────────────────────────────────────────────────────────┘
+
+
+CORS and SameSite cookies
+  SameSite cookies, described in chapter 4, are fundamentally incompatible with CORS. If a cookie is marked 
+  as SameSite, then it will not be sent on cross-site requests regardless of any CORS policy and the 
+  Access-Control-Allow-Credentials header is ignored. An exception is made for origins that are sub-domains 
+  of the same site; for example, www.example.com can still send requests to api.example.com, but genuine 
+  cross-site requests to different registerable domains are disallowed. If you need to allow cross-site 
+  requests with cookies, then you should not use SameSite cookies.
+
+TIP
+  If you want scripts from two sibling sub-domains to share storage, you can set the document.domain field 
+  to a common parent domain in both scripts. Both scripts must explicitly set the document.domain, otherwise 
+  it will be ignored. For example, if a script from a.example.com and a script from b.example.com both set 
+  document.domain to example.com, then they will share Web Storage. This is allowed only for a valid parent 
+  domain of the script origin, and you cannot set it to a top-level domain like .com or .org. Setting the 
+  document.domain field also instructs the browser to ignore the port when comparing origins.
+
+
+DEFINITION
+  Exfiltration is the act of stealing tokens and sensitive data from a page and sending them to the attacker 
+  without the victim being aware. The attacker can then use the stolen tokens to log in as the user from 
+  the attacker’s own device.
+
+  If an attacker can exploit an XSS attack (chapter 2) against a browser-based client of your API, then 
+   they can easily loop through the contents of Web Storage and create an img tag for each item with the 
+   src attribute, pointing to an attacker-controlled website to extract the contents, as illustrated in 
+   figure 5.5. Most browsers will eagerly load an image source URL, without the img even being added to 
+   the page, 4 allowing the attacker to steal tokens covertly with no visible indication to the user.
+
+DEFINITION
+  A message authentication code (MAC) is an algorithm for computing a short fixed-length authentication 
+  tag from a message and a secret key. A user with the same secret key will be able to compute the same 
+  tag from the same message, but any change in the message will result in a completely different tag. An 
+  attacker without access to the secret cannot compute a correct tag for any message. HMAC (hash-based MAC) 
+  is a widely used secure MAC based on a cryptographic hash function. For example, HMAC-SHA-256 is
+  HMAC using the SHA-256 hash function.
+
+
+Java supports loading keys from keystores using the java.security.KeyStore class, and you can create 
+  a keystore using the keytool command shipped with the JDK. Java provides several keystore formats, 
+  but you should use the PKCS #12 format (https://tools.ietf.org/html/rfc7292) because that is the 
+  most secure option supported by keytool.
+
+Encrypting database attributes
+  One way to protect sensitive attributes in the database is by encrypting them. While many databases 
+  come with built-in support for encryption, and some commercial products can add this, these solutions 
+  typically only protect against attackers that gain access to the raw database file storage. Data 
+  returned from queries is transparently decrypted by the database server, so this type of encryption 
+  does not protect against SQL injection or other attacks that target the database API. You can solve
+  this by encrypting database records in your API before sending data to the database, and then 
+  decrypting the responses read from the database.
+
+
+
+
 

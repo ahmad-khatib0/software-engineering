@@ -23,4 +23,7 @@ $ curl -b /tmp/cookies -H 'Content-Type: application/json' \
   -d '{"name":"test space","owner":"test"}' https://localhost:4567/spaces
 
 
+# generate a keystore with a 256-bit HMAC key:
+$ keytool -genseckey -keyalg HmacSHA256 -keysize 256 -alias hmac-key -keystore keystore.p12 \
+  -storetype PKCS12 -storepass changeit
 
