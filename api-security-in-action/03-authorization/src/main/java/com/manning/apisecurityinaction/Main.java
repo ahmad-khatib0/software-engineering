@@ -19,8 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.util.Set;
-
-import javax.crypto.SecretKey;
+import java.net.URI;
 
 import org.dalesbred.Database;
 import org.dalesbred.result.EmptyResultException;
@@ -35,7 +34,8 @@ import com.manning.apisecurityinaction.controller.SpaceController;
 import com.manning.apisecurityinaction.controller.TokenController;
 import com.manning.apisecurityinaction.controller.UserController;
 import com.manning.apisecurityinaction.token.DatabaseTokenStore;
-import com.manning.apisecurityinaction.token.EncryptedJwtTokenStore;
+import com.manning.apisecurityinaction.token.OAuth2TokenStore;
+import com.manning.apisecurityinaction.token.SecureTokenStore;
 
 import spark.Request;
 import spark.Response;
@@ -85,14 +85,19 @@ public class Main {
     var keyPassword = System.getProperty("keystore.password", "changeit").toCharArray();
     var keyStore = KeyStore.getInstance("PKCS12");
     keyStore.load(new FileInputStream("keystore.p12"), keyPassword);
-    // var macKey = keyStore.getKey("hmac-key", keyPassword);
-    var encKey = keyStore.getKey("aes-key", keyPassword);
 
+    // $ keytool -import -keystore as.example.com.ca.p12 \
+    // -alias ca -file "$(mkcert -CAROOT)/rootCA.pem"
+    // This will ask you whether you want to trust the root CA certificate and then
+    // ask you for a password for the new keystore. Accept the certificate and type
+    // in a suitable password, then copy the generated keystore into the Natter
+    // project root directory.
     var databaseTokenStore = new DatabaseTokenStore(database);
-    // var tokenStore = new HmacTokenStore(databaseTokenStore, macKey);
-    // var tokenController = new TokenController(tokenStore);
-    var tokenWhitelist = new DatabaseTokenStore(database);
-    var tokenController = new TokenController(new EncryptedJwtTokenStore((SecretKey) encKey, tokenWhitelist));
+    var clientId = "testClient";
+    var clientSecret = "60ho9IS3d6/A+Zzvdn9Y4laiGnI/1TddTM95lEHjArw=";
+    var introspectionEndpoint = URI.create("https://as.example.com:8443/oauth2/introspect");
+    SecureTokenStore tokenStore = new OAuth2TokenStore(introspectionEndpoint, clientId, clientSecret);
+    var tokenController = new TokenController(tokenStore);
 
     before(userController::authenticate);
     before(tokenController::validateToken);
@@ -101,22 +106,34 @@ public class Main {
     afterAfter(auditController::auditRequestEnd);
 
     before("/sessions", userController::requireAuthentication);
+    before("/sessions", tokenController.requireScope("POST", "full_access"));
+
     post("/sessions", tokenController::login);
     delete("/sessions", tokenController::logout);
 
     before("/spaces/:spaceId/messages", userController.requirePermission("POST", "w"));
+    before("/spaces/*/messages", tokenController.requireScope("POST", "post_message"));
     post("/spaces/:spaceId/messages", spacesController::postMessage);
+
     before("/spaces/:spaceId/messages/*", userController.requirePermission("GET", "r"));
+    before("/spaces/*/messages/*", tokenController.requireScope("GET", "read_message"));
     get("/spaces/:spaceId/messages/:msgId", spacesController::readMessage);
+
     before("/spaces/:spaceId/messages", userController.requirePermission("GET", "r"));
+    before("/spaces/*/messages", tokenController.requireScope("GET", "list_messages"));
     get("/spaces/:spaceId/messages", spacesController::findMessages);
+
     before("/spaces/:spaceId/members", userController.requirePermission("POST", "rwd"));
+    before("/spaces/*/members", tokenController.requireScope("POST", "add_member"));
     post("/spaces/:spaceId/members", spacesController::addMember);
 
+    before("/spaces/*/messages/*", tokenController.requireScope("DELETE", "delete_message"));
     before("/spaces/:spaceId/messages/*", userController.requirePermission("DELETE", "d"));
     delete("/spaces/:spaceId/messages/:msgId", moderatorController::deletePost);
 
+    before("/spaces", tokenController.requireScope("POST", "create_space"));
     post("/spaces", spacesController::createSpace);
+
     post("/users", userController::registerUser);
 
     after((request, response) -> {

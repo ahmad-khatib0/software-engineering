@@ -34,4 +34,9 @@ $ mvn clean compile exec:java -Dexec.args=9999 -Dkeystore.password=changeit -Dke
 $ keytool -genseckey -keyalg AES -keysize 256 -alias aes-key -keystore keystore.p12 -storepass changeit
 
 
+# An example of obtaining an access token using the ROPC grant type in oauth: 
+$ curl -d 'grant_type=password&client_id=test&scope=read_messages+post_message&username=demo&password=changeit' \
+  https://as.example.com:8443/oauth2/access_token
+
+
 
