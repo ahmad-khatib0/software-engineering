@@ -67,6 +67,11 @@
       <artifactId>salty-coffee</artifactId>
       <version>1.0.2</version>
     </dependency>
+    <dependency>
+      <groupId>com.github.nitram509</groupId>
+      <artifactId>jmacaroons</artifactId>
+      <version>0.4.1</version>
+    </dependency>
 
     <!-- Drools rule engine dependencies -->
     <dependency>

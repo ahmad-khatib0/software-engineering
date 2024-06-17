@@ -30,7 +30,13 @@ public class Main {
     datasource = JdbcConnectionPool.create("jdbc:h2:mem:natter", "natter_api_user", "password");
 
     database = Database.forDataSource(datasource);
-    var spaceController = new SpaceController(database);
+    var keyPassword = System.getProperty("keystore.password", "changeit").toCharArray();
+    var keyStore = KeyStore.getInstance("PKCS12");
+    keyStore.load(new FileInputStream("keystore.p12"), keyPassword);
+    var macKey = keyStore.getKey("hmac-key", keyPassword);
+
+    var capController = new CapabilityController(MacaroonTokenStore.wrap(new DatabaseTokenStore(database), macKey));
+    var spaceController = new SpaceController(database, capController);
     var userController = new UserController(database);
     var auditController = new AuditController(database);
 
@@ -58,14 +64,9 @@ public class Main {
       response.header("Server", "");
     });
 
-    var keyPassword = System.getProperty("keystore.password",
-        "changeit").toCharArray();
-    var keyStore = KeyStore.getInstance("PKCS12");
-    keyStore.load(new FileInputStream("keystore.p12"),
-        keyPassword);
-    var macKey = keyStore.getKey("hmac-key", keyPassword);
-
-    SecureTokenStore tokenStore = HmacTokenStore.wrap(new DatabaseTokenStore(database), macKey);
+    // SecureTokenStore tokenStore = HmacTokenStore.wrap(new
+    // DatabaseTokenStore(database), macKey);
+    SecureTokenStore tokenStore = new CookieTokenStore();
     var tokenController = new TokenController(tokenStore);
 
     before(userController::authenticate);
@@ -87,9 +88,9 @@ public class Main {
     post("/spaces", spaceController::createSpace);
 
     // Additional REST endpoints not covered in the book:
-    before("/spaces/:spaceId/messages", userController::lookupPermissions);
-    before("/spaces/:spaceId/messages/*", userController::lookupPermissions);
-    before("/spaces/:spaceId/members", userController::lookupPermissions);
+    before("/spaces/:spaceId/messages", capController::lookupPermissions);
+    before("/spaces/:spaceId/messages/*", capController::lookupPermissions);
+    before("/spaces/:spaceId/members", capController::lookupPermissions);
 
     before("/spaces/*/messages", tokenController.requireScope("POST", "post_message"));
     before("/spaces/:spaceId/messages", userController.requirePermission("POST", "w"));
@@ -115,6 +116,7 @@ public class Main {
 
     get("/logs", auditController::readAuditLog);
     post("/users", userController::registerUser);
+    post("/share", capController::share);
 
     internalServerError(new JSONObject().put("error", "internal server error").toString());
     notFound(new JSONObject().put("error", "not found").toString());

@@ -8,7 +8,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 
 import static java.time.Instant.now;
-
 import static spark.Spark.halt;
 
 public class TokenController {
@@ -43,10 +42,9 @@ public class TokenController {
 
   public void validateToken(Request request, Response response) {
     var tokenId = request.headers("Authorization");
-    if (tokenId == null || !tokenId.startsWith("Bearer ")) {
-      return;
+    if (tokenId != null && tokenId.startsWith("Bearer ")) {
+      tokenId = tokenId.substring(7);
     }
-    tokenId = tokenId.substring(7);
 
     tokenStore.read(request, tokenId).ifPresent(token -> {
       if (now().isBefore(token.expiry)) {
@@ -67,8 +65,7 @@ public class TokenController {
       var tokenScope = request.<String>attribute("scope");
       if (tokenScope == null)
         return;
-      if (!Arrays.asList(tokenScope.split(" "))
-          .contains(requiredScope)) {
+      if (!Arrays.asList(tokenScope.split(" ")).contains(requiredScope)) {
         response.header("WWW-Authenticate", "Bearer error=\"insufficient_scope\"," + "scope=\"" + requiredScope + "\"");
         halt(403);
       }

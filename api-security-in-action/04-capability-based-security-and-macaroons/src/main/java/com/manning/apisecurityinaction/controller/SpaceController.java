@@ -1,21 +1,23 @@
 package com.manning.apisecurityinaction.controller;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.dalesbred.Database;
 import org.json.*;
 import spark.*;
+
+import java.time.*;
+import java.time.temporal.ChronoUnit;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SpaceController {
   private static final Set<String> DEFINED_ROLES = Set.of("owner", "moderator", "member", "observer");
 
   private final Database database;
+  private final CapabilityController capabilityController;
 
-  public SpaceController(Database database) {
+  public SpaceController(Database database, CapabilityController capabilityController) {
     this.database = database;
+    this.capabilityController = capabilityController;
   }
 
   public JSONObject createSpace(Request request, Response response) {
@@ -24,10 +26,12 @@ public class SpaceController {
     if (spaceName.length() > 255) {
       throw new IllegalArgumentException("space name too long");
     }
+
     var owner = json.getString("owner");
     if (!owner.matches("[a-zA-Z][a-zA-Z0-9]{1,29}")) {
       throw new IllegalArgumentException("invalid username");
     }
+
     var subject = request.attribute("subject");
     if (!owner.equals(subject)) {
       throw new IllegalArgumentException("owner must match authenticated user");
@@ -41,20 +45,24 @@ public class SpaceController {
               "VALUES(?, ?, ?);",
           spaceId, spaceName, owner);
 
-      // Grant all roles to the owner
-      for (var role : DEFINED_ROLES) {
-        database.updateUnique(
-            "INSERT INTO user_roles(space_id, user_id, role_id) " +
-                "VALUES(?, ?, ?)",
-            spaceId, owner, role);
-      }
+      // Ensure the link doesn’t expire.
+      var expiry = Duration.ofDays(100000);
+      var uri = capabilityController.createUri(request, "/spaces/" + spaceId, "rwd", expiry);
+      var messagesUri = capabilityController.createUri(request, "/spaces/" + spaceId + "/messages", "rwd", expiry);
+      var messagesReadWriteUri = capabilityController.createUri(request, "/spaces/" + spaceId + "/messages", "rw",
+          expiry);
+      var messagesReadOnlyUri = capabilityController.createUri(request, "/spaces/" + spaceId + "/messages", "r",
+          expiry);
 
       response.status(201);
-      response.header("Location", "/spaces/" + spaceId);
+      response.header("Location", uri.toASCIIString());
 
       return new JSONObject()
-          .put("name", spaceName).put("uri", "/spaces/" + spaceId);
-
+          .put("name", spaceName)
+          .put("uri", uri)
+          .put("messages-rwd", messagesUri)
+          .put("messages-rw", messagesReadWriteUri)
+          .put("messages-r", messagesReadOnlyUri);
     });
   }
 
@@ -62,6 +70,7 @@ public class SpaceController {
   public JSONObject postMessage(Request request, Response response) {
     var spaceId = Long.parseLong(request.params(":spaceId"));
     var json = new JSONObject(request.body());
+
     var user = json.getString("author");
     if (!user.matches("[a-zA-Z][a-zA-Z0-9]{0,29}")) {
       throw new IllegalArgumentException("invalid username");
@@ -69,6 +78,7 @@ public class SpaceController {
     if (!user.equals(request.attribute("subject"))) {
       throw new IllegalArgumentException("author must match authenticated user");
     }
+
     var message = json.getString("message");
     if (message.length() > 1024) {
       throw new IllegalArgumentException("message is too long");
@@ -83,9 +93,13 @@ public class SpaceController {
           spaceId, msgId, user, message);
 
       response.status(201);
-      var uri = "/spaces/" + spaceId + "/messages/" + msgId;
-      response.header("Location", uri);
-      return new JSONObject().put("uri", uri);
+      var uri = capabilityController.createUri(request, "/spaces/" + spaceId + "/messages/" + msgId, "rd",
+          Duration.ofMinutes(5));
+      var readOnlyUri = capabilityController.createUri(request, "/spaces/" + spaceId + "/messages/" + msgId, "r",
+          Duration.ofDays(365));
+
+      response.header("Location", uri.toASCIIString());
+      return new JSONObject().put("uri", uri).put("read-only", readOnlyUri);
     });
   }
 
@@ -114,9 +128,12 @@ public class SpaceController {
             "WHERE space_id = ? AND msg_time >= ?;",
         spaceId, since);
 
+    // Remove any permissions that are not applicable (replace).
+    var perms = request.<String>attribute("perms").replace("w", "");
     response.status(200);
     return new JSONArray(messages.stream()
         .map(msgId -> "/spaces/" + spaceId + "/messages/" + msgId)
+        .map(path -> capabilityController.createUri(request, path, perms, Duration.ofMinutes(10)))
         .collect(Collectors.toList()));
   }
 

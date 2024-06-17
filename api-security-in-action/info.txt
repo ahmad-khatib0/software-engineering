@@ -718,4 +718,97 @@ Certificate chains
   Measure the performance overhead of ABAC policy evaluation early and often.
 
 
+DEFINITION
+  A confused deputy attack occurs when a component of a system with elevated privileges can be tricked by 
+  an attacker into carrying out actions that the attacker themselves would not be allowed to perform. The 
+  CSRF attacks of chapter 4 are classic examples of confused deputy attacks, where the web browser is tricked 
+  into carrying out the attacker’s requests using the victim’s session cookie.
+
+
+Capability-based security
+  A capability is an unforgeable reference to an object or resource together with a set of permissions to 
+  access that resource. To illustrate how capability-based security differs from identity-based security, 
+  consider the following two ways to copy a file on UNIX 1 systems:
+  cp a.txt b.txt
+  cat <a.txt >b.txt
+-- The first, using the cp command, takes as input the name of the file to copy and the name of the file to 
+   copy it to. The second, using the cat command, instead takes as input two file descriptors: one opened for 
+   reading and the other opened for writing. It then simply reads the data from the first file descriptor and 
+   writes it to the second. If you think about the permissions that each of these commands needs, the cp com-
+   mand needs to be able to open any file that you can name for both reading and writing. To allow this, UNIX runs 
+   the cp command with the same permissions as your own user account, so it can do anything you can do, including 
+   deleting all your files and emailing your private photos to a stranger. This violates POLA because the command 
+   is given far more permissions than it needs. The cat command, on the other hand, just needs to read from its 
+   input and write to its output. It doesn’t need any permissions at all (but of course UNIX gives it all your 
+   permissions anyway). A file descriptor is an example of a capability, because it combines a reference to some 
+   resource along with a set of permissions to act on that resource.
+
+-- capabilities have several differences compared to other identity-based access control techniques: 
+  Access to resources is via unforgeable references to those objects that also grant authority to access 
+   that resource. In an identity-based system, anybody can attempt to access a resource, but they might be 
+   denied access depending on who they are. In a capability-based system, it is impossible to send a request 
+   to a resource if you do not have a capability to access it. For example, it is impossible to write to a 
+   file descriptor that your process doesn’t have. You’ll see in section 9.2 how this is implemented for REST APIs.
+  Capabilities provide fine-grained access to individual resources, and often support POLA more naturally 
+   than identity-based systems. It is much easier to delegate a small part of your authority to somebody 
+   else by giving them some capabilities without giving them access to your whole account. 
+  The ability to easily share capabilities can make it harder to determine who has access to which resources 
+   via your API. In practice this is often true for identity-based systems too, as people share access in 
+   other ways (such as by sharing passwords).
+  Some capability-based systems do not support revoking capabilities after they have been granted. When 
+   revocation is supported, revoking a widely shared capability may deny access to more people than was intended.
+
+DEFINITION
+  When the permission to perform an action is automatically granted to all requests that originate from a 
+  given environment this is known as ambient authority. Examples of ambient authority include session cookies
+  and allowing access based on the IP address a request comes from. Ambient authority increases the risks 
+  of confused deputy attacks and should be avoided whenever possible.
+
+DEFINITION
+  A capability URI (or capability URL) is a URI that both identifies a resource and conveys a set of 
+  permissions to access that resource. Typically, a capability URI encodes an unguessable token into some 
+  part of the URI structure (e.g links sent in password reset emails).
+
+Credentials in URIs: A lesson from history
+  The desire to share access to private resources simply by sharing a URI is not new. For a long time, 
+  browsers supported encoding a username and password into a HTTP URL in the form 
+  http://alice:secret@example.com/resource. When such a link was clicked, the browser would send the username 
+  and password using HTTP Basic authentication (see chapter 3). Though convenient, this is widely considered 
+  to be a security disaster. For a start, sharing a username and password provides full access to your account 
+  to anybody who sees the URI. Secondly, attackers soon realized that this could be used to create convincing 
+  phishing links such as http://www.google.com:80@evil.example.com/login.html. An unsuspecting user would see 
+  the google.com domain at the start of the link and assume it was genuine, when in fact this is just a 
+  username and they will really be sent to a fake login page on the attacker’s site. To prevent these attacks,
+  browser vendors have stopped supporting this URI syntax and most now aggressively remove login information 
+  when displaying or following such links. Although capability URIs are significantly more secure than directly 
+  sharing a password, you should still be aware of any potential for misuse if you display URIs to users.
+
+CAPABILITY URIS FOR REST APIS
+  The drawbacks of capability URIs just mentioned apply when they are used as a means of navigating a 
+  website. When capability URIs are used in a REST API many of these issues don’t apply:
+  
+  The Referer header and window.referrer variables are populated by browsers when a user directly navigates 
+   from one web page to another, or when one page is embedded into another in an iframe. Neither of these 
+   apply to the typical JSON responses from an API because these are not directly rendered as pages.
+  Similarly, because users don’t typically navigate directly to API endpoints, these URIs will not end up 
+   in the browser history. 
+  API URIs are also unlikely to be bookmarked or otherwise saved for a long period of time. Typically, a 
+   client knows a few permanent URIs as entry points to an API and then navigates to other URIs as it 
+   accesses resources. These resource URIs can use short-lived tokens to mitigate against tokens being 
+   leaked in access logs.
+
+
+PRINCIPLE
+  HATEOAS, or hypertext as the engine of application state, is a central principle of REST API design that 
+  states that a client should not need to have specific knowledge of how to construct URIs to access your API. 
+  Instead, the server should provide this information in the form of hyperlinks and form templates.
+
+DEFINITION
+  A macaroon is a type of cryptographic token that can be used to represent capabilities and other 
+  authorization grants. Anybody can append new caveats to a macaroon that restrict how it can be used.
+
+DEFINITION
+  A contextual caveat is a caveat that is added by a client just before use. Contextual caveats allow the 
+  authority of a token to be restricted before sending it over an insecure channel or to an untrusted API, 
+  limiting the damage that might occur if the token is stolen.
 
