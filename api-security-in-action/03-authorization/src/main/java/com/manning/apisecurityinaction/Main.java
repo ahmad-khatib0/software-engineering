@@ -29,6 +29,7 @@ import org.json.JSONObject;
 
 import com.google.common.util.concurrent.RateLimiter;
 import com.manning.apisecurityinaction.controller.AuditController;
+import com.manning.apisecurityinaction.controller.DroolsAccessController;
 import com.manning.apisecurityinaction.controller.ModeratorController;
 import com.manning.apisecurityinaction.controller.SpaceController;
 import com.manning.apisecurityinaction.controller.TokenController;
@@ -105,11 +106,18 @@ public class Main {
     before(auditController::auditRequestStart);
     afterAfter(auditController::auditRequestEnd);
 
+    var droolsController = new DroolsAccessController();
+    before("/*", droolsController::enforcePolicy);
+
     before("/sessions", userController::requireAuthentication);
     before("/sessions", tokenController.requireScope("POST", "full_access"));
 
     post("/sessions", tokenController::login);
     delete("/sessions", tokenController::logout);
+
+    before("/spaces/:spaceId/messages", userController::lookupPermissions);
+    before("/spaces/:spaceId/messages/*", userController::lookupPermissions);
+    before("/spaces/:spaceId/members", userController::lookupPermissions);
 
     before("/spaces/:spaceId/messages", userController.requirePermission("POST", "w"));
     before("/spaces/*/messages", tokenController.requireScope("POST", "post_message"));

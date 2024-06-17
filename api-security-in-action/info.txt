@@ -665,4 +665,57 @@ Certificate chains
    their session at the AS, enabling the user to log out of all clients at once (known as single logout).
 
 
+  The LDAP standard defines the following two forms of groups
+1- Static groups are defined using the groupOfNames or groupOfUniqueNames object classes, which explicitly 
+   list the members of the group using the member or uniqueMember attributes. The difference between the two 
+   is that groupOfUniqueNames forbids the same member being listed twice.
+2- Dynamic groups are defined using the groupOfURLs object class, where the membership of the group is 
+   given by a collection of LDAP URLs that define search queries against the directory. Any entry that 
+   matches one of the search URLs is a member of the group.
+
+
+  Role-based access control
+   In principle, everything that you can accomplish with RBAC could be accomplished with groups, but in practice 
+   there are several differences in how they are used, including the following:
+  Groups are used primarily to organize users, while roles are mainly used as a way to organize permissions.
+  As discussed in the previous section, groups tend to be assigned centrally, whereas roles tend to be 
+   specific to a particular application or API. As an example, every API may have an admin role, but the 
+   set of users that are administrators may differ from API to API.
+  Group-based systems often allow permissions to be assigned to individual users, but RBAC systems typically 
+   don’t allow that. This restriction can dramatically simplify the process of reviewing who has access to what.
+  RBAC systems split the definition and assigning of permissions to roles from the assignment of users to 
+   those roles. It is much less error-prone to assign a user to a role than to work out which permissions 
+   each role should have, so this is a useful separation of duties that improves security.
+  Roles may have a dynamic element. For example, some military and other environments have the concept of 
+   a duty officer, who has particular privileges and responsibilities only during their shift. When the shift 
+   ends, they hand over to the next duty officer, who takes on that role.
+
+   
+  Attribute-based access control. In ABAC, access control decisions are made dynamically for each API 
+   request using collections of attributes grouped into four categories:
+  Attributes about the subject; that is, the user making the request. This could include their username, 
+   any groups they belong to, how they were authenticated, when they last authenticated, and so on.
+  Attributes about the resource or object being accessed, such as the URI of the
+   resource or a security label (TOP SECRET, for example).
+  Attributes about the action the user is trying to perform, such as the HTTP method.
+  Attributes about the environment or context in which the operation is taking place. This might include 
+   the local time of day, or the location of the user performing the action.
+
+
+-- To maximize the benefits of ABAC while limiting the potential for mistakes, con-
+   sider adopting the following best practices:
+  Layer ABAC over a simpler access control technology such as RBAC. This provides a defense-in-depth 
+   strategy so that a mistake in the ABAC rules doesn’t result in a total loss of security.
+  Implement automated testing of your API endpoints so that you are alerted quickly if a policy 
+   change results in access being granted to unintended parties.
+  Ensure access control policies are maintained in a version control system so that they can be 
+   easily rolled back if necessary. Ensure proper review of all policy changes.
+  Consider which aspects of policy should be centralized and which should be left up to individual 
+   APIs or local policy agents. Though it can be tempting to cen- tralize everything, this can introduce 
+   a layer of bureaucracy that can make it harder to make changes. In the worst case, this can violate 
+   the principle of least privilege because overly broad policies are left in place due to the overhead 
+   of changing them.
+  Measure the performance overhead of ABAC policy evaluation early and often.
+
+
 

@@ -2,6 +2,11 @@ CREATE TABLE users(
     user_id VARCHAR(30) PRIMARY KEY,
     pw_hash VARCHAR(255) NOT NULL
 );
+CREATE TABLE group_members(
+    group_id VARCHAR(30),
+    user_id VARCHAR(30) REFERENCES users(user_id)
+);
+CREATE INDEX group_member_user_idx ON group_members(user_id);
 
 CREATE TABLE spaces(
     space_id INT PRIMARY KEY,
@@ -32,12 +37,23 @@ CREATE TABLE audit_log(
 );
 CREATE SEQUENCE audit_id_seq;
 
-CREATE TABLE permissions(
+CREATE TABLE role_permissions(
+    role_id VARCHAR(30) NOT NULL PRIMARY KEY,
+    perms VARCHAR(3) NOT NULL
+);
+
+INSERT INTO role_permissions(role_id, perms) VALUES 
+ ('owner', 'rwd'),
+ ('moderator', 'rd'),
+ ('member', 'rw'),
+ ('observer', 'r');
+
+CREATE TABLE user_roles(
     space_id INT NOT NULL REFERENCES spaces(space_id),
     user_id VARCHAR(30) NOT NULL REFERENCES users(user_id),
-    perms VARCHAR(3) NOT NULL,
-    PRIMARY KEY (space_id, user_id)
+    role_id VARCHAR(30) NOT NULL REFERENCES role_permissions(role_id),
 );
+CREATE INDEX user_roles_idx ON user_roles(space_id, user_id);
 
 CREATE TABLE tokens(
     token_id VARCHAR(100) PRIMARY KEY,
@@ -47,11 +63,13 @@ CREATE TABLE tokens(
 );
 CREATE INDEX expired_token_idx ON tokens(expiry);
 
-
 CREATE USER natter_api_user PASSWORD 'password';
 GRANT SELECT, INSERT ON spaces, messages TO natter_api_user;
 GRANT DELETE ON messages TO natter_api_user;
 GRANT SELECT, INSERT ON users TO natter_api_user;
 GRANT SELECT, INSERT ON audit_log TO natter_api_user;
-GRANT SELECT, INSERT ON permissions TO natter_api_user;
 GRANT SELECT, INSERT, DELETE ON tokens TO natter_api_user;
+GRANT SELECT, INSERT, DELETE ON group_members TO natter_api_user;
+GRANT SELECT, INSERT, DELETE ON user_roles TO natter_api_user;
+-- Because the roles are fixed, the API is granted read-only access
+GRANT SELECT ON role_permissions TO natter_api_user;

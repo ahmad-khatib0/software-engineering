@@ -1,15 +1,19 @@
 package com.manning.apisecurityinaction.controller;
 
-import com.lambdaworks.crypto.*;
-import org.dalesbred.*;
-import org.json.*;
+import com.lambdaworks.crypto.SCryptUtil;
+import org.dalesbred.Database;
+import org.dalesbred.query.QueryBuilder;
+import org.json.JSONObject;
 import spark.*;
-import java.nio.charset.*;
-import java.util.*;
-import static spark.Spark.*;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+import static spark.Spark.halt;
 
 public class UserController {
   private static final String USERNAME_PATTERN = "[a-zA-Z][a-zA-Z0-9]{1,29}";
+
   private final Database database;
 
   public UserController(Database database) {
@@ -18,9 +22,9 @@ public class UserController {
 
   public JSONObject registerUser(Request request, Response response) throws Exception {
     var json = new JSONObject(request.body());
-
     var username = json.getString("username");
     var password = json.getString("password");
+
     if (!username.matches(USERNAME_PATTERN)) {
       throw new IllegalArgumentException("invalid username");
     }
@@ -38,9 +42,30 @@ public class UserController {
   }
 
   public void authenticate(Request request, Response response) {
+    var credentials = getCredentials(request);
+    if (credentials == null)
+      return;
+
+    var username = credentials[0];
+    var password = credentials[1];
+
+    var hash = database.findOptional(String.class, "SELECT pw_hash FROM users WHERE user_id = ?", username);
+
+    if (hash.isPresent() && SCryptUtil.check(password, hash.get())) {
+      request.attribute("subject", username);
+
+      var groups = database.findAll(String.class,
+          "SELECT DISTINCT group_id FROM group_members " +
+              "WHERE user_id = ?",
+          username);
+      request.attribute("groups", groups);
+    }
+  }
+
+  String[] getCredentials(Request request) {
     var authHeader = request.headers("Authorization");
     if (authHeader == null || !authHeader.startsWith("Basic ")) {
-      return;
+      return null;
     }
 
     var offset = "Basic ".length();
@@ -54,17 +79,11 @@ public class UserController {
     }
 
     var username = components[0];
-    var password = components[1];
-
     if (!username.matches(USERNAME_PATTERN)) {
       throw new IllegalArgumentException("invalid username");
     }
-    var hash = database.findOptional(String.class, "SELECT pw_hash FROM users WHERE user_id = ?", username);
 
-    if (hash.isPresent() && SCryptUtil.check(password, hash.get())) {
-      request.attribute("subject", username);
-    }
-
+    return components;
   }
 
   public void requireAuthentication(Request request, Response response) {
@@ -74,27 +93,38 @@ public class UserController {
     }
   }
 
+  public void lookupPermissions(Request request, Response response) {
+    requireAuthentication(request, response);
+    var spaceId = Long.parseLong(request.params(":spaceId"));
+    var username = (String) request.attribute("subject");
+
+    // Determine user permissions by mapping user to role to permissions.
+    var query = new QueryBuilder(
+        "SELECT rp.perms " +
+            "  FROM role_permissions rp JOIN user_roles ur" +
+            "    ON rp.role_id = ur.role_id" +
+            " WHERE ur.space_id = ? AND ur.user_id = ?",
+        spaceId, username);
+
+    var role = (String) request.attribute("role");
+    if (role != null) {
+      query.append(" AND ur.role_id = ?", role);
+    }
+
+    var perms = String.join("", database.findAll(String.class, query.build()));
+    request.attribute("perms", perms);
+  }
+
   public Filter requirePermission(String method, String permission) {
     return (request, response) -> {
       if (!method.equalsIgnoreCase(request.requestMethod())) {
         return;
       }
 
-      requireAuthentication(request, response);
-
-      var spaceId = Long.parseLong(request.params(":spaceId"));
-      var username = (String) request.attribute("subject");
-
-      var perms = database.findOptional(
-          String.class,
-          "SELECT perms FROM permissions " +
-              "WHERE space_id = ? AND user_id = ?",
-          spaceId, username).orElse("");
-
+      var perms = request.<String>attribute("perms");
       if (!perms.contains(permission)) {
         halt(403);
       }
     };
   }
-
 }

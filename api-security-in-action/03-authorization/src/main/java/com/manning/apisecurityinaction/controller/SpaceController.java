@@ -1,8 +1,7 @@
 package com.manning.apisecurityinaction.controller;
 
-import java.sql.SQLException;
-
 import java.time.Instant;
+import java.util.Set;
 import java.time.temporal.ChronoUnit;
 import java.util.stream.Collectors;
 
@@ -11,13 +10,14 @@ import org.json.*;
 import spark.*;
 
 public class SpaceController {
+  private static final Set<String> DEFINED_ROLES = Set.of("owner", "moderator", "member", "observer");
   private final Database database;
 
   public SpaceController(Database database) {
     this.database = database;
   }
 
-  public JSONObject createSpace(Request request, Response response) throws SQLException {
+  public JSONObject createSpace(Request request, Response response) {
     var json = new JSONObject(request.body());
     var spaceName = json.getString("name");
     if (spaceName.length() > 255) {
@@ -37,11 +37,17 @@ public class SpaceController {
     return database.withTransaction(tx -> {
       var spaceId = database.findUniqueLong("SELECT NEXT VALUE FOR space_id_seq;");
 
-      database.updateUnique("INSERT INTO spaces(space_id, name, owner) " + "VALUES(?, ?, ?);",
+      database.updateUnique(
+          "INSERT INTO spaces(space_id, name, owner) " + "VALUES(?, ?, ?);",
           spaceId, spaceName, owner);
 
-      database.updateUnique("INSERT INTO permissions(space_id, user_id, perms) " + "VALUES(?, ?, ?)",
-          spaceId, owner, "rwd");
+      // Grant all roles to the owner
+      for (var role : DEFINED_ROLES) {
+        database.updateUnique(
+            "INSERT INTO user_roles(space_id, user_id, role_id) " +
+                "VALUES(?, ?, ?)",
+            spaceId, owner, role);
+      }
 
       response.status(201);
       response.header("Location", "/spaces/" + spaceId);
@@ -121,19 +127,24 @@ public class SpaceController {
     var json = new JSONObject(request.body());
     var spaceId = Long.parseLong(request.params(":spaceId"));
     var userToAdd = json.getString("username");
-    var perms = json.getString("permissions");
-
-    if (!perms.matches("r?w?d?")) {
-      throw new IllegalArgumentException("invalid permissions");
+    var roles = json.optJSONArray("roles");
+    if (roles == null) {
+      roles = new JSONArray().put("member");
     }
 
-    database.updateUnique(
-        "INSERT INTO permissions(space_id, user_id, perms) " +
-            "VALUES(?, ?, ?)",
-        spaceId, userToAdd, perms);
+    if (!DEFINED_ROLES.containsAll(roles.toList())) {
+      throw new IllegalArgumentException("invalid role");
+    }
+
+    for (var role : roles.toList()) {
+      database.updateUnique(
+          "INSERT INTO user_roles(space_id, user_id, role_id)" +
+              " VALUES(?, ?, ?)",
+          spaceId, userToAdd, role);
+    }
 
     response.status(200);
-    return new JSONObject().put("username", userToAdd).put("permissions", perms);
+    return new JSONObject().put("username", userToAdd).put("roles", roles);
   }
 
   public static class Message {
