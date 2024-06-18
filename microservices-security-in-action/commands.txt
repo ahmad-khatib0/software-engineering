@@ -17,4 +17,22 @@ $$ mvn spring-boot:run
 }
 EOF
 
+## 2.2.3 Getting an access token from the OAuth 2.0 authorization server
+$$ curl -u orderprocessingapp:orderprocessingappsecret -H "Content-Type: application/json" \
+  -d '{"grant_type": "client_credentials", "scope": "read write}' http://localhost:8085/oauth/token
+++ name (orderprocessingapp) and password (orderprocessingappsecret). The only difference 
+   is that these credentials belong to an application, not a user.
+
+## 2.3.3  to access the Order Processing microservice
+\> curl -v http://localhost:8080/orders -H 'Content-Type: application/json' \
+   -H "Authorization: Bearer 8c017bb5-f6fd-4654-88c7-c26ccca54bdd" \
+  --data-binary @- << EOF {
+    "items":[ { "itemCode":"IT0001", "quantity":3 }, { "itemCode":"IT0004", "quantity":1 } ],
+    "shippingAddress":"No 4, Castro Street, Mountain View, CA, USA" 
+  }
+EOF
+
+
+
+
 
