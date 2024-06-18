@@ -1,6 +1,0 @@
-/home/ahmad-khatib/Downloads/personal/software-engineering/projects/microservices-security-in-action/01-basics/sample01/src/main/java/com/manning/mss/ch02/sample01/service/OrderProcesingService.java
-/home/ahmad-khatib/Downloads/personal/software-engineering/projects/microservices-security-in-action/01-basics/sample01/src/main/java/com/manning/mss/ch02/sample01/exceptions/OrderNotFoundException.java
-/home/ahmad-khatib/Downloads/personal/software-engineering/projects/microservices-security-in-action/01-basics/sample01/src/main/java/com/manning/mss/ch02/sample01/orderentity/Invoice.java
-/home/ahmad-khatib/Downloads/personal/software-engineering/projects/microservices-security-in-action/01-basics/sample01/src/main/java/com/manning/mss/ch02/sample01/orderentity/LineItem.java
-/home/ahmad-khatib/Downloads/personal/software-engineering/projects/microservices-security-in-action/01-basics/sample01/src/main/java/com/manning/mss/ch02/sample01/orderentity/Order.java
-/home/ahmad-khatib/Downloads/personal/software-engineering/projects/microservices-security-in-action/01-basics/sample01/src/main/java/com/manning/mss/ch02/sample01/service/OrderApplication.java
