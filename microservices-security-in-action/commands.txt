@@ -1,0 +1,20 @@
+$$ mvn clean install
+## If you run into problems while running the command, old and incompatible dependencies might reside in your 
+   local Maven repository. To get rid of such problems, try removing (or renaming) the .m2 directory that 
+   resides in your home directory (~/.m2/). The preceding command instructs Maven to compile your source code
+   and produce a runnable artifact known as a Java Archive (JAR) file. Note that you need to have Java and Maven 
+   installed to execute this step successfully. If your build is successful, you’ll see the message BUILD SUCCESS.
+
+$$ mvn spring-boot:run
+
+\> curl -v http://localhost:8080/orders -H 'Content-Type: application/json'  --data-binary @- << EOF
+{
+  "items":[
+    { "itemCode":"IT0001", "quantity":3 },
+    { "itemCode":"IT0004", "quantity":1 }
+  ],
+  "shippingAddress":"No 4, Castro Street, Mountain View, CA, USA" 
+}
+EOF
+
+

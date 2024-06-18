@@ -1,0 +1,63 @@
+ 
+## Immutability of containers challenges how you maintain service credentials and access-control policies: 
+   In microservices security architecture, a microservice itself becomes a security enforcement point. As a 
+   result, you need to maintain a list of allowed clients (probably other microservices) that can access the
+   given microservice, and you need a set of access-control policies. These lists aren’t static; both the 
+   allowed clients and access-control policies get updated. With an immutable server, you can’t maintain such 
+   updates in the server’s filesystem. You need a way to get all the updated policies from some sort of policy
+   administration endpoint at server bootup and then update them dynamically in memory, following a push or 
+   pull model. In the push model, the policy administration endpoint pushes policy updates to the interested 
+   microservices (or security enforcement points). In the pull model, each microservice has to poll the 
+   policy administration endpoint periodically for policy updates. 
+
+## The distributed nature of microservices makes sharing user context harder: 
+   In a monolithic application, all internal components share the same web session, and anything related to the 
+   requesting party (or user) is retrieved from it. In microservices architecture, you don’t enjoy that luxury. 
+   Nothing is shared among microservices (or only a very limited set of resources)
+
+## Polyglot architecture demands more security expertise on each development team: 
+   In a microservices deployment, services talk to one another over the network. They depend not on each 
+   service’s implementation, but on the service interface. This situation permits each microservice to pick 
+   its own programming language and the technology stack for implementation. In a multiteam environment, in 
+   which each team develops its own set of microservices, each team has the flexibility to pick the optimal 
+   technology stack for its requirements. This architecture, which enables the various components in a system 
+   to pick the technology stack that is best for them, is known as a polyglot architecture.
+
+## Most proxy servers support two modes of operation with respect to TLS: TLS bridging and TLS tunneling. 
+   TLS bridging terminates the first TLS connection at the proxy server, and creates a new TLS connection 
+   between the proxy server and the next destination of the message. If your proxy server uses TLS bridging, 
+   don’t trust it and possibly put your data at risk, even though you use TLS (or HTTPS). If you use TLS 
+   bridging, the messages are in cleartext while transiting through the proxy server. TLS tunneling creates 
+   a tunnel between your client application and the microservices, and no one in the middle will be able 
+   to see what’s going through, not even the proxy server
+
+## TLS provides confidentiality and integrity for the data in transit, and helps the client identify the 
+   service. The client microservice knows which microservice it’s going to talk with. But with TLS (one-way), 
+   the recipient microservice can’t verify the identity of the client microservice. That’s where mTLS comes 
+   in. mTLS lets each microservice in communication identify the others.
+   Challenges in mTLS include bootstrapping trust and provisioning keys/certificates to
+   workloads/microservices, key revocation, key rotation, and key monitoring.
+
+## Service-level authorization: 
+   Two approaches are used to enforce authorization at the service level: the centralized policy decision 
+   point (PDP) model and the embedded PDP model. In the centralized PDP model, all the access-control policies 
+   are defined, stored, and evaluated centrally (see figure 1.12). Each time the service wants to validate a 
+   request, it has to talk to an endpoint exposed by the centralized PDP. This method creates a lot of dependency 
+   on the PDP and also increases the latency because of the cost of calling the remote PDP endpoint. In some cases, 
+   the effect on latency can be prevented by caching policy decisions at the service level, but other than cache 
+   expiration time, there’s no way to communicate policy update events to the service. In practice, policy updates 
+   happen less frequently, and cache expiration may work in most cases. With embedded PDPs, policies are defined 
+   centrally but are stored and evaluated at the service level. The challenge with embedded PDPs is how to get 
+   policy updates from the centralized policy administration point (PAP)
+   There are two common methods. One approach is to poll the PAP continuously after a set period and then 
+   pull new and updated policies from PAP. The other approach is based on a push mechanism. Whenever a new 
+   policy or policy update is available, the PAP publishes an event to a topic (see figure 1.13). Each microservice 
+   acts as an event consumer and registers for the events it’s interested in. Whenever a microservice receives 
+   an event for a registered topic, it pulls the corresponding policy from the PAP and updates the embedded PDP.
+
+== Spring Boot is a framework based on the Spring platform that allows you to convert
+   functions written in the Java programming language to network-accessible functions,
+   known as services or APIs, by decorating your code with a special set of annotations.
+
+
+
