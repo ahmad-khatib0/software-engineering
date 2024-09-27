@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: natter-database-deployment
+  namespace: natter-api
+spec:
+  selector:
+    matchLabels:
+      app: natter-database
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: natter-database
+    spec:
+      securityContext:
+        # ensures that the container is not accidentally run as the root user. The root user inside a
+        # container is the root user on the host OS and can sometimes escape from the container.
+        runAsNonRoot: true
+      containers:
+        - name: natter-database
+          image: apisecurityinaction/h2database:latest
+          imagePullPolicy: Never
+          securityContext:
+            # ensures that no process run inside the container can have more privileges than the initial
+            # user. This prevents the container executing files marked with set-UID attributes that run
+            # as a different user, such as root
+            allowPrivilegeEscalation: false
+            # makes the entire filesystem inside the container read-only, preventing an attacker from
+            # altering any system files. If your container needs to write files, you can mount a separate
+            # persistent storage volume.
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - all
+              # all: removes all Linux capabilities assigned to the container. This ensures that if an attacker
+              # does gain root access, they are severely limited in what they can do. Linux capabilities are subsets
+              # of full root privileges and are unrelated to the capabilities you used in chapter 9.
+          ports:
+            - containerPort: 9092
