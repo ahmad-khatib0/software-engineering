@@ -33,6 +33,3 @@ $$ curl -u orderprocessingapp:orderprocessingappsecret -H "Content-Type: applica
 EOF
 
 
-
-
-
