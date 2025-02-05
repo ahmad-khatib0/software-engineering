@@ -1,5 +1,5 @@
  
-## Immutability of containers challenges how you maintain service credentials and access-control policies: 
+#  Immutability of containers challenges how you maintain service credentials and access-control policies: 
    In microservices security architecture, a microservice itself becomes a security enforcement point. As a 
    result, you need to maintain a list of allowed clients (probably other microservices) that can access the
    given microservice, and you need a set of access-control policies. These lists aren’t static; both the 
@@ -10,12 +10,12 @@
    microservices (or security enforcement points). In the pull model, each microservice has to poll the 
    policy administration endpoint periodically for policy updates. 
 
-## The distributed nature of microservices makes sharing user context harder: 
-   In a monolithic application, all internal components share the same web session, and anything related to the 
-   requesting party (or user) is retrieved from it. In microservices architecture, you don’t enjoy that luxury. 
-   Nothing is shared among microservices (or only a very limited set of resources)
+#  The distributed nature of microservices makes sharing user context harder: 
+   In a monolithic application, all internal components share the same web session, and anything related 
+   to the requesting party (or user) is retrieved from it. In microservices architecture, you don’t enjoy 
+   that luxury. Nothing is shared among microservices (or only a very limited set of resources)
 
-## Polyglot architecture demands more security expertise on each development team: 
+#  Polyglot architecture demands more security expertise on each development team: 
    In a microservices deployment, services talk to one another over the network. They depend not on each 
    service’s implementation, but on the service interface. This situation permits each microservice to pick 
    its own programming language and the technology stack for implementation. In a multiteam environment, in 
@@ -23,7 +23,7 @@
    technology stack for its requirements. This architecture, which enables the various components in a system 
    to pick the technology stack that is best for them, is known as a polyglot architecture.
 
-## Most proxy servers support two modes of operation with respect to TLS: TLS bridging and TLS tunneling. 
+#  Most proxy servers support two modes of operation with respect to TLS: TLS bridging and TLS tunneling. 
    TLS bridging terminates the first TLS connection at the proxy server, and creates a new TLS connection 
    between the proxy server and the next destination of the message. If your proxy server uses TLS bridging, 
    don’t trust it and possibly put your data at risk, even though you use TLS (or HTTPS). If you use TLS 
@@ -31,14 +31,14 @@
    a tunnel between your client application and the microservices, and no one in the middle will be able 
    to see what’s going through, not even the proxy server
 
-## TLS provides confidentiality and integrity for the data in transit, and helps the client identify the 
+#  TLS provides confidentiality and integrity for the data in transit, and helps the client identify the 
    service. The client microservice knows which microservice it’s going to talk with. But with TLS (one-way), 
    the recipient microservice can’t verify the identity of the client microservice. That’s where mTLS comes 
    in. mTLS lets each microservice in communication identify the others.
    Challenges in mTLS include bootstrapping trust and provisioning keys/certificates to
    workloads/microservices, key revocation, key rotation, and key monitoring.
 
-## Service-level authorization: 
+#  Service-level authorization: 
    Two approaches are used to enforce authorization at the service level: the centralized policy decision 
    point (PDP) model and the embedded PDP model. In the centralized PDP model, all the access-control policies 
    are defined, stored, and evaluated centrally (see figure 1.12). Each time the service wants to validate a 

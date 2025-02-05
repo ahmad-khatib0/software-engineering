@@ -1,0 +1,67 @@
+- Operational versus analytical data:
+● Operational data
+  Data used for the operation of the business, including sales, transactional data, inventory, and 
+  so on. This data is what the company runs on—if something interrupts this data, the organization 
+  cannot function for very long. This type of data is defined as Online Transactional Processing 
+  (OLTP), which typically involves inserting, updating, and deleting data in a database.
+  
+● Analytical data
+  Data used by data scientists and other business analysts for predictions, trending, and other 
+  business intelligence. This data is typically not transactional and often not relational—it may
+  be in a graph database or snapshots in a different format than its original transactional form.
+  This data isn’t critical for the day-to-day operation but rather for the long-term strategic 
+  direction and decisions.
+
+- Architectural Decision Records
+  One of the most effective ways of documenting architecture decisions is through Architectural Decision 
+  Records (ADRs). ADRs were first evangelized by Michael Nygard in a blog post. An ADR consists of a 
+  short text file (usually one to two pages long) describing a specific architecture decision. 
+
+- For each architecture decision, we will be using the following ADR format with the assumption that 
+  each ADR is approved:
+- ADR: A short noun phrase containing the architecture decision
+- Context: In this section of the ADR we will add a short one- or two-sentence description of the problem,
+  and list the alternative solutions.
+- Decision: In this section we will state the architecture decision and provide a detailed 
+  justification of the decision.
+- Consequences: In this section of the ADR we will describe any consequences after the decision is
+  applied, and also discuss the trade-offs that were considered.
+  
+- Finding an objective outcome for a fitness function is critical. However, objective doesn’t imply 
+  static. Some fitness functions will have noncontextual return values, such as true/false or a numeric 
+  value such as a performance threshold. However, other fitness functions (deemed dynamic) return a value
+  based on some context. For example, when measuring scalability, architects measure the number of concurrent
+  users and also generally measure the performance for each user. Often, architects design systems so 
+  that as the number of users goes up, performance per user declines slightly—but doesn’t fall off a 
+  cliff. Thus, for these systems, architects design performance fitness functions that take into account
+  the number of concurrent users. As long as the measure of an architecture characteristic is objective, 
+  architects can test it.
+
+- Definitions:
+  Orchestrated coordination: A workflow is orchestrated if it includes a service whose primary 
+    responsibility is to coordinate the workflow.
+  Choreographed coordination: A workflow is choreographed when it lacks an orchestrator; rather, the 
+    cservices in the workflow share the coordination responsibilities of the workflow.
+
+- The four main users of the Sysops Squad ticketing application are as follows:
+Administrator
+  The administrator maintains the internal users of the system, including the list of experts and their 
+  corresponding skill set, location, and availability. The administrator also manages all of the billing
+  processing for customers using the system, and maintains static reference data (such as supported 
+  products, name-value pairs in the system, and so on).
+  
+Customer
+  The customer registers for the Sysops Squad service and maintains their customer profile, support 
+  contracts, and billing information. Customers enter problem tickets into the system, and also fill 
+  out surveys after the work has been completed.
+  
+Sysops Squad expert
+  Experts are assigned problem tickets and fix problems based on the ticket. They also interact with the
+  knowledge base to search for solutions to customer problems and enter notes about repairs.
+  
+Manager
+  The manager keeps track of problem ticket operations and receives operational and analytical 
+  reports about the overall Sysops Squad problem ticket system.
+
+
+
