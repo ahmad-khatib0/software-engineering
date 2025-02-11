@@ -1,0 +1,47 @@
+- This book is based on the x86-64 instruction set architecture, which is the 64-bit version of the 
+  x86 (32-bit) instruction set architecture. It is also known by the names AMD64, x86_64, x64, 
+  and Intel 64.
+
+- You can think of computer hardware as consisting of three separate subsystems: central processing
+  unit (CPU), memory, and input/output (I/O). They are connected with buses, as shown in Figure 1-1.
+
+. Central processing unit (CPU)   Controls the flow of data to and from memory and I/O devices. 
+  The CPU performs arithmetic and logical operations on the data. The CPU can decide the order 
+  of operations based on the results of arithmetic and logic operations. It contains a small 
+  amount of very fast memory.
+. Memory  Provides storage that is readily accessible to the CPU and I/O devices for the 
+  instructions to the CPU and the data they manipulate. 
+. Input/output (I/O)   Communicates with the outside world and with mass storage devices 
+  (for example, the disk, network, USB, and printer).
+. Bus  A physical communication pathway with a protocol specifying exactly how the pathway 
+  is used.
+
+- Signals can flow in either direction on the buses. The address bus is used to specify a specific
+  memory location or an I/O device. Program data and program instructions flow on the data bus. 
+  The control bus carries signals that specify how each of the subsystems should be using the 
+  signals on the other buses.
+
+- The buses shown in Figure 1-1 indicate logical groupings of the signals that must pass between 
+  the three subsystems. A given bus implementation might not have physically separate paths for 
+  each of the three types of signals. For example, if you have ever installed a graphics card in 
+  a computer, it probably used the Peripheral Component Interconnect Express (PCI-E) bus. The same
+  physical connections on the PCI-E bus carry addresses and data, but at different times.
+
+- When it comes time to execute the program, the CPU loads the instructions from the machine code
+  disk file into memory. Most programs include some constant data that is also read into memory. 
+  The CPU executes the program by reading, often called fetching, each instruction from memory and
+  executing it. The data is also fetched as needed by the program. When the CPU is ready to execute
+  the next instruction in the program, the location of that instruction in memory is placed on the
+  address bus. The CPU also places a read signal on the control bus. The memory subsystem responds
+  by placing the instruction on the data bus, where the CPU can then copy it. If the CPU is instructed
+  to read data from memory, the same sequence of events takes place. If the CPU is instructed to 
+  store data in memory, it places the data on the data bus, places the location in memory where 
+  the data is to be stored on the address bus, and places a write signal on the control bus. The
+  memory subsystem responds by copying the data on the data bus into the specified memory location.
+
+- An interpreter is a program that translates the programming language into machine instructions, 
+  but instead of saving the instructions in a file, they are immediately executed. Another variation 
+  is for a compiler to translate the programming language into an intermediate shorthand language 
+  that is stored in a file that can be executed by an interpreter.
+
+
