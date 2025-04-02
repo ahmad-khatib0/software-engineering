@@ -1,0 +1,53 @@
+- b source_filename:line_number  Set a breakpoint at the specified line_number in the source file,
+  source_filename. The code will stop running at the breakpoint, when line_number is encountered, 
+  and return control to gdb, allowing you to test various elements of the code.
+  
+- c  Continue program execution from the current location. 
+
+- h command   Help on how to use command.
+
+- i r  Show the contents of the CPU registers (info registers). 
+
+- l line_number  List 10 lines of the source code, centered at the specified line-number.
+
+- print expression  Evaluate expression and print the value.
+
+- printf "format", var1, var2, ...    Display the values of var1, var2, ... in a given format. 
+  The "format" string follows the same rules as printf in the C standard library.
+  
+- r  Begin execution of a program that has been loaded under control of gdb.
+
+- x/nfs memory_address  Display (examine) n values in memory in format f of size s starting 
+  at memory_address.
+
+--- Example 
+$ gcc -g -Wall -masm=intel -o int_and_string.out int_and_string.c
+$ gdb ./int_and_string.out
+
+(gdb) print anInt
+$1 = 1194684
+(gdb) print aString
+$2 = "123abc\000\177\000>
+
+(gdb) printf "anInt = %u = %#x\n", anInt, anInt
+anInt = 1194684 = 0x123abc
+(gdb) printf "aString = 0x%s\n", aString
+aString = 0x123abc
+
+- gdb provides another command for examining the content of memory directly
+(gdb) h x
+(gdb) print &anInt
+$3 = (unsigned int *) 0x7fffffffde88
+. We’ll use the x command to display the content of anInt three different ways: one decimal 
+  word ( 1dw), one hexadecimal word ( 1xw), and four hexa- decimal bytes ( 4xb): 
+(gdb) x/1dw 0x7fffffffde88 =>  0x7fffffffde88: 1194684
+(gdb) x/1xw 0x7fffffffde88 =>  0x7fffffffde88: 0x00123abc
+(gdb) x/4xb 0x7fffffffde88 =>  0x7fffffffde88: 0xbc 0x3a 0x12 0x00
+
+- look at the content of a var in 10 characters (10c)
+# shows the code point in decimal and the character glyph for each character.
+(gdb) x/10c 0x7fffffffde8e
+# shows only the code point in hexadecimal for each byte
+- look at the content of a var in 10 hexadecimal bytes ( 10xb):
+(gdb) x/10xb 0x7fffffffde8e
+

@@ -1,0 +1,243 @@
+\documentclass[12pt]{extarticle}
+\usepackage[document]{ragged2e}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage[left=0.5in, right=0.5in, top=1in, bottom=1in]{geometry}
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=red]{hyperref}
+\usepackage{times} % Times New Roman
+
+% the following is for the code
+\usepackage{listings}
+\usepackage{color}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\lstset{frame=tb,
+  language=Java,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+\begin{document}
+\textbf{Representing Groups of Bits}\\
+Even with binary, sometimes we have so many bits that the number is unreadable. In those cases,
+we use hexadecimal digits to specify bit patterns. The hexadecimal system has 16 digits, each
+of which can represent one group of 4 bits.
+
+\vspace{18pt}
+The octal system, based on the number eight, is less common, but you will encounter it occasionally.
+The eight octal digits span from 0 to 7, and each one represents a group of three bits. Table 2-2
+
+\vspace{18pt}
+\large{Using Hexadecimal Digits}\\
+Hexadecimal digits are especially convenient when we need to specify the state of a group of,
+say, 16 or 32 switches. In place of each group of four bits, we can write one hexadecimal digit.
+Here are two examples:
+\center 6c2a = 0110110000101010, 0123abcd = 00000001001000111010101111001101
+
+\vspace{18pt}
+A single bit isn’t usually useful for storing data. The smallest number of bits that can be
+accessed at a time in a computer is defined as a byte. In most modern computers, a byte
+consists of eight bits, but there are exceptions to the eight-bit byte. For example, the
+CDC 6000 series of scientific mainframe computers used a six-bit byte.
+
+\vspace{18pt}
+In the C and C++ programming languages, prefixing a number with \textbf{0x} that’s a zero and 
+a lowercase x — specifies that the number is expressed in hexadecimal, and prefixing a number 
+with only a 0 specifies octal. C++ allows us to specify a value in binary by prefixing the 
+number with 0b. Although the 0b notation for specifying binary is not part of standard C,
+our compiler, gcc, allows it. Thus, when writing C or C++ code in this book, these all mean
+the same thing: \\
+\Large\textbf 100 = 0x64 = 0144 = 0b01100100
+
+\vspace{18pt}
+In the decimal number system, the integer 123 is taken to mean: \\
+$1 \times 100 + 2 \times 10 + 3 $  \hspace{4pt} or: $1 \times 10^2 + 2 \times 10^1 + 3 \times 10^0 $\\
+the rightmost digit, 3, is the least significant digit because its value contributes the least
+to the number’s total value. The leftmost digit, 1, is the most significant digit because it
+contributes the most value.
+
+\vspace{18pt}
+The radix in the binary number system is 2, so there are only two symbols for representing
+the digits;  this means that di = 0, 1, and we can write this expression as follows:
+$ d_{n-1} * 2^{n-1} + d_{n–2} * 2^{n–2} + ... + d_1 * 2^1 + d_0 * 2^0 $
+
+\vspace{18pt}
+\textbf{Converting Binary to Unsigned Decimal}
+You can easily convert from binary to decimal by computing the value of 2 raised to the power
+of  the position it is in and then multiplying that by the value of the bit in that position.
+$ 10010101_2 = 1 * 2^7 + 0 * 2^6 + 0 * 2^5 + 1 * 2^4 + 0 × 2^3 + 1 * 2^2 + 0 * 2^1 + 1 * 2^0 $\\
+$ = 128 + 16 + 4 + 1  \hspace{44pt} 149_{10} $
+
+\vspace{18pt}
+\textbf{Converting Unsigned Decimal to Binary}
+If we want to convert an unsigned decimal integer, N, to binary, we set it equal to
+the previous expression for binary numbers to give this equation: \\
+$N = d_{n–1} * 2^{n–1} + d_{n–2} * 2^{n–2} + … + d_1 × 2^1 + d_0 × 2^0$ \\
+where each $d_i$ = 0 or 1. We divide both sides of this equation by 2, and the
+exponent of each 2 term on the right side decreases by 1, giving the following: \\
+$N_1 + \frac{r_0}{2} = (d_{n–1} * 2^{n–2} * d_{n–2} * 2^{n–3} + … + d_1 × 2^0) + d_0 * 2^{–1}$ \\
+where $N_1$ is the integer part, and the remainder, r 0, is 0 for even numbers and 1 for odd
+numbers. Doing a little rewriting, we have the equivalent equation: \\
+$ N_1 + \frac{r_0}{2} = (d_{n–1} * 2^{n–2} + d_{n–2} * 2^{n–3} + … + d_1 × 2^0) + \frac{d_0}{2}$
+
+\vspace{8pt}
+All the terms within the parentheses on the right side are integers. The integer part of both
+sides of an equation must be equal, and the fractional parts must also be equal. That is:\\
+$ N_1 = d_{n–1} * 2^{n–2} + d_{n–2} * 2^{n–3} + … + d_1 × 2^0$ \\
+and $\frac{r_0}{2} = \frac{d_0}{2}$ \newline \newline
+Thus, we see that $ d_0 = r_0 $ . Subtracting $r_0 / 2$ (which equals $d_0 / 2$ ) from
+both sides of our expanded equation gives this: \\
+$ N_1 = d_{n–1} * 2^{n–2} + d_{n–2} * 2^{n–3} + … + d_1 × 2^0 $ \\
+Again, we divide both sides by 2: \newline\newline
+$N_2  + \frac{r_1}{2}  = d_{n-1} * 2^{n-3} + d_{n-2} * 2^{n-4} + ... + d_2 * 2^0 + d_1 * 2^{-1}$ \\
+= $(d_{n-1}  * 2^{n-3} + d_{n-2} * 2^{n-4} + ... + d_2 * 2^0 ) \frac{d_1}{2}$ \newline\newline
+Using the same reasoning as earlier, $d_1 = r^1$. We can produce the binary
+representation of a number by working from right to left, repeatedly dividing by 2, and using
+the remainder as the value of the respective bit. This is summarized in the following algorithm: \\
+
+\begin{lstlisting}
+quotient = N
+i = 0
+d_1 = quotient % 2
+quotient = quotient % 2
+While quotient != 0
+    i = i + 1
+    d_i = quotient % 2
+    quotient = quotient / 2
+\end{lstlisting}
+
+The name random access memory is misleading. Here random access means that it takes the
+same amount of time to access any byte in the memory, not that any randomness is involved 
+when reading the byte. We contrast RAM with sequential access memory (SAM), where the amount
+of time it takes to access a byte depends on its position in some sequence.
+
+\vspace{10pt}
+\Large{Read-only memory (ROM)}\\
+ROM is also called nonvolatile memory (NVM). The control unit can read
+the state of each bit but can’t change it.
+
+\vspace{10pt}
+Computer scientists typically express the address of each byte in memory in hexadecimal, starting
+the numbering at zero. Thus, we would say that the 957th byte is at address 0x3bc (= 956 in decimal).
+
+\vspace{10pt}
+\begin{itemize}\raggedright
+  \item An ASCII character in 8-bit ASCII encoding is 8 bits (1 byte), though it can fit
+        in 7 bits.
+  \item An ISO-8895-1 character in ISO-8859-1 encoding is 8 bits (1 byte).
+  \item A Unicode character in UTF-8 encoding is between 8 bits (1 byte) and 32 bits (4 bytes).
+  \item A Unicode character in UTF-16 encoding is between 16 (2 bytes) and 32 bits (4 bytes),
+        though most of the common characters take 16 bits. This is the encoding used by Windows internally.
+  \item A Unicode character in UTF-32 encoding is always 32 bits (4 bytes).
+  \item An ASCII character in UTF-8 is 8 bits (1 byte), and in UTF-16 - 16 bits.
+  \item The additional (non-ASCII) characters in ISO-8895-1 (0xA0-0xFF) would take 16 bits
+        in UTF-8 and UTF-16.
+\end{itemize}
+
+\vspace{18pt}
+UTF-8 is backward compatible with an older standard, the American Standard Code for Information
+Interchange (ASCII—pronounced “ask-ee”). ASCII uses seven bits to specify each code point 
+in a 128-character set, which contains the English alphabet (uppercase and lowercase), 
+numerals, special characters, and control characters.
+
+\vspace{18pt}
+Hello, World!\textbackslash n , the compiler stores this text string as a constant array 
+of characters. To specify the extent of this array, a C-style string uses the code point 
+U+0000 (ASCII NUL) at the end of the string as a sentinel value, a unique value that 
+indicates the end of a sequence of characters. Thus, the compiler must allocate 13 bytes 
+for this string: 11 for Hello, World!, 1 for the newline \textbackslash n and 1 for the NUL.
+
+\vspace{18pt}
+C uses U+000A (ASCII LF) as a single newline character (at address 0x4004ae in Table 2-6) 
+even though the C syntax requires that the programmer write two characters, \textbackslash n.
+The text string ends with the NUL character at 0x4004af. \\
+In Pascal, the length of the string is specified by the first byte in the string, which 
+is taken to be an eight-bit unsigned integer. (This is the reason for the 256-character 
+limit on text strings in Pascal.) The C++ string class has additional features, but the 
+actual text string is stored as a C-style text string within the C++ string instance.
+
+\vspace{18pt}
+Using only one byte restricts the range of unsigned integers to be from 0 to 255 10, since
+ff16 = 255 10. The default size for an unsigned integer in our programming environment is four
+bytes, which allows for a range of 0 to \textbf{4,294,967,295}.
+
+\vspace{18pt}
+Binary Coded Decimal (BCD) is another code for storing integers. It uses
+four bits for each decimal digit, as shown in Table 2-7.
+
+\vspace{18pt}
+With only 10 of the possible 16 combinations being used (in BCD), we can see that six bit
+patterns are wasted. This means that a 16-bit storage location has a range of 0 to 9,999 
+for values if we use BCD, compared to a range of 0 to 65,535 if we use binary, so this is 
+a less efficient use of memory. On the other hand, the conversions between a character 
+format and an integer format are simpler with BCD,
+
+\vspace{18pt}
+BCD is important in specialized systems that deal primarily with numerical business data,
+because they tend to print numbers more often than perform mathematical operations on them.
+COBOL, a programming language intended for business applications, supports a packed BCD format
+where two digits (in BCD code) are stored in each eight-bit byte. Here, the last (four-bit)
+digit is used to store the sign of the number,
+
+\vspace{18pt}
+A header file is used to provide a prototype statement for each function, which specifies
+these data types. The stdio.h header file defines the interface to many of the functions 
+in the C standard library, which allows the compiler to know what to do when calls to any 
+of these functions are encountered in our source code.
+
+\vspace{18pt}
+\textbf{Little-Endian}\\
+Data is stored in memory with the least significant byte in a multiple-byte
+value in the lowest-numbered address. That is, the “littlest” byte (counts the
+least) comes first in memory.
+When we examine memory one byte at a time, each byte is displayed in
+numerically ascending addresses
+
+\vspace{18pt}
+\textbf{Big-Endian}\\
+Data is stored in memory with the most significant byte in a multiple-byte
+value in the lowest-numbered address. That is, the “biggest” byte (counts
+the most) comes first in memory.
+
+\vspace{18pt}
+\textbf{Endianness} is not an issue. However, you need to know about it because it can 
+be confusing when examining memory in the debugger. Endianness is also an issue when 
+different computers are communicating with each other. For example, Transport Control 
+Protocol/Internet Protocol (TCP/IP) is defined to be big-endian, sometimes called network
+byte order. The x86-64 architecture is little-endian. The operating system reorders the 
+bytes for internet communication. But if you’re writing communications software for an 
+operating system itself or for an embedded system that may not have an operating system, 
+you need to know about byte order.
+
+\vspace{18pt}
+\begin{itemize}
+\item Bits  A computer is a collection of on/off switches that we can represent with bits.
+\item Hexadecimal  A number system based on 16. Each hexadecimal digit, 0 to f, 
+represents four bits.
+\item Byte  A group of eight bits. The bit pattern can be expressed as two hexadecimal digits.
+\item Converting between decimal and binary   The two number systems are 
+mathematically equivalent.
+\item Memory addressing   Bytes in memory are numbered (addressed) sequentially. 
+  The byte’s address is usually expressed in hexadecimal.
+\item Endianness  An integer that is more than one byte can be stored with the 
+  highest-order byte in the lowest byte address (big-endian) or with the lowest-order byte
+  in the lowest byte address (little-endian). The x86-64 architecture is little-endian.
+\item UTF-8 encoding   A code for storing characters in memory.
+\item String  This C-style string is an array of characters terminated by the NUL character.
+\item printf  This C library function is used to write formatted data on the monitor screen.
+\item scanf  This C library function is used to read formatted data from the keyboard.
+\end{itemize}
+
+\end{document}
