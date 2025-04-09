@@ -1,0 +1,176 @@
+- Typically, manual exploratory testing is carried out in a testing environment, where the 
+  entire application is deployed. The testers take the liberty to meddle with the various 
+  application components, such as the database, services, or background processes, as 
+  they please, in order to simulate different real-time scenarios and observe the 
+  application’s behavior. This exploratory style of testing differs from traditional 
+  manual testing, which refers to the task of manually executing a particular set of 
+  actions described as acceptance criteria in user stories or in the requirements document
+  and verifying whether the stated expectations are met successfully. 
+
+- State transition
+  The state transition framework is helpful in deriving test cases in situations where 
+  the application’s behavior changes based on the history of inputs. For example, our 
+  login page might show an error message the first and second time the user enters an 
+  incorrect password, but the account might get locked the third time. In such scenarios
+  we can draw a transition tree, as seen in Figure 2-3, 
+
+- Decision table
+  When inputs are logically bound (AND, OR, etc.) to produce outcomes, decision tables
+  can be used for deriving test cases. This can save a lot of time during testing, as 
+  you have all the possible input combinations and expected outputs clearly marked in 
+  the table ahead of time
+
+- Cause-effect graphing
+  Cause-effect graphing is another way of visualizing logically bound inputs and their
+  possible outcomes. The framework helps to view the big picture of a feature and
+  hence is particularly useful in the analysis phase.
+
+- Pairwise testing
+  We often have to deal with more than one input value in applications, and it can be 
+  a struggle to manage their variations and derive test cases. Pairwise testing, also
+  known as all-pairs testing, is a framework that assists in condensing the test cases
+  to a minimum when multiple such independent variables/inputs drive the outcomes.
+  Consider a form that takes three independent inputs: operating system (OS) type,
+  device manufacturer, and resolution. The OS field can take two values: Android or
+  Windows. The device field can take three values: Samsung, Google, or Oppo. Finally,
+  the resolution field can take Small, Medium, and Large as values. So, when we are
+  testing this form, we have 2 * 3 * 3 = 18 input combinations, 
+    
+- Sampling
+  Sampling, in general, can be applied to any input that is continuous and large in
+  nature. It involves selecting a subset of the values to use for testing, as seen in 
+  Figure 2-5, usually using one of the following techniques: random sampling or
+  criteria-specific sampling.
+
+- Error guessing method
+  Error guessing involves predicting possible failures based on past experience. 
+  These might include common problems with integration, input validation, boundary 
+  cases, and more. 
+  
+- Here are a few types of errors that crop up regularly, in my experience:
+• Missing validations for invalid/blank input values and lack of appropriate error
+  messages directing the user to correct the input
+• Unclear HTTP status codes returned for data validation, technical, and business errors 
+• Unhandled boundary conditions specific to the domain, data types, states, etc.
+• Technical errors such as the server being down, responses timing out, etc. 
+  un-handled on the UI side
+• UI issues (such as jerks and residues) during transitions, data refreshes, 
+  and navigation
+• The SQL keywords like and equals used interchangeably, changing the results entirely
+• Uncleared caches and undefined session timeouts
+• Reposting a request when the user clicks the back button in the browser
+• Missing file format validation when uploading files from different OS platforms
+
+- Cross-functional aspects: 
+. Security:  In the order creation user flow, an abusive user could enter SQL queries
+  in the UI input fields and try to hack the application. The application should have
+  validations in place to handle such attempts.
+. Privacy: Users’ private data, such as credit card details and shipping addresses,
+  should not be stored in the application database without their consent.  
+. Authentication/authorization: Most websites have user authentication functionality,
+  which calls for exploring authentication-related test cases such as single sign-on,
+  two-factor authentication, session expiry, account locking, unlocking, etc
+
+- At times, exploratory testing is confused with monkey testing, an approach where 
+  the application is tested with random inputs and with zilch knowledge about the 
+  functionality. It is important to note that in exploratory testing you should 
+  have a precise understanding of the functionality being tested, and test with 
+  the mindset of exploring the unknowns.
+
+-- Here is a brief on the five broad areas that you may focus on while trying to 
+   establish an understanding of the application:
+. User personas: 
+  A persona is a character that represents a set of end users with similar attributes.
+  In software teams, such user personas are created at the beginning of the project
+  so that their specific needs can be imbued into all the stages of the delivery 
+  lifecycle, starting from design. An example of user personas impacting the features 
+  of an application is in a social networking site, where young adults may expect an
+  extravagant experience while seniors may expect a clean and clear interaction.
+  Testing is all about wearing the end user’s hat, 
+. Domain
+  Every domain—social networking, transport, health, etc.—has a tailored workflow, 
+  process, and set of terminology or jargon that needs to be understood to kick-start 
+  exploration. Ecommerce is a perfect example where domain knowledge becomes critical
+  in testing. For instance, an order, once created, goes through a defined workflow: 
+  capture, promise, confirm, and so on. The order fulfillment flow has to interact with
+  numerous parties, such as the warehouse that stores the items, the shipping partner 
+  that transports the items from the warehouse to the customer, and the vendors that 
+  replenish the items regularly.
+. Business priorities
+  Consider the scenario where the business priority is to design the solution as a
+  platform for extensibility and scalability purposes. In such cases, just testing the
+  functional user flow from the UI may not be sufficient. It needs to be explored
+  from a “platform” point of view, observing whether the UI and web services are
+  tightly coupled or if the web services are independent and can be integrated with
+  other systems, and other similar angles.
+. Infrastructure and configuration
+  As discussed earlier, exploratory testing involves meddling with the test 
+  environment to simulate real-time scenarios, including failure cases. Having 
+  information about which application components are deployed where and the configurable
+  levers will provide critical hints for finding new discovery paths. For example, web
+  services may be configured with the maximum number of hits they can serve within a 
+  time period, known as rate limiting; you may need to observe the application 
+  behavior when the rate limit is exceeded. 
+. Application architecture
+  Knowledge of the application architecture will add branches to your discovery
+  paths in an exploratory testing session. For example, if the architecture involves
+  web services, you may need to perform exploratory testing of the API (discussed
+  in “API Testing” on page 32) instead of just exploring the UI. Similarly, if the
+  application involves event streams (discussed in Chapter 5), exploring the cases
+  around asynchronous communication becomes important. 
+
+- Testing as a continuous process will allow you to structure the scope that should be
+  explored in depth at a particular time or phase. For example, some Agile teams practice
+  dev-box testing, where business representatives and testers perform time-bounded
+  exploratory testing of the user story that was just developed on the developer’s 
+  own machine.
+
+- WireMock
+  WireMock is a tool for creating and altering stubs, which are software components that 
+  emulate another component’s behaviors. Stubs are especially useful when developing and 
+  testing complex applications with multiple integrations, where not all the integrating
+  services are ready yet. The teams agree on a service contract and are able to continue 
+  development by creating stubs of the integrating services. Stubs are created by 
+  explicitly programming them to respond to particular requests with a defined output. 
+  This feature can be used in exploratory testing to set up different positive and
+  negative integration test cases. 
+
+- Cloud-hosted testing platforms like BrowserStack and Sauce Labs absolve you of 
+  the need to install different versions of browsers and OSs on local machines. 
+  They provide virtual access to web browsers on different OSs,
+
+- Bug Magnet
+  Bug Magnet is a browser plug-in available for Chrome and Firefox that enables testing
+  edge cases in an application. It provides a list of common test cases and appropriate
+  values to be entered in the editable elements of the application for each test case.
+  
+
+Key Takeaways
+• Manual exploratory testing involves wandering through the test application with
+  the intention to explore and understand the application’s behavior, which may
+  eventually lead to discovering new user flows and bugs in the existing user flows.
+• Manual exploratory testing differs from manual testing in that the latter is about
+  checking a list of specifications, while the former relies on an individual’s analysis
+  and keen observational skills.
+• Exploratory testing brings together the business needs, the technical implementation,
+  and the end user’s perspective while challenging what is known to be true from all 
+  these angles.
+• We discussed a pack of eight exploratory testing frameworks that can assist in
+  structuring the tester’s thought processes and deriving meaningful test cases.
+• The manual exploratory testing strategy emphasizes understanding the application 
+  details in five broad areas and then kick-starting the exploration of four essential 
+  pathways: the functional user flows, failures and error handling, UI look and feel,
+  and cross-functional aspects.
+• Exploratory testing has to be a continuous process. It can be planned to repeat in
+  different phases of the delivery lifecycle, such as in dev-box testing, user story
+  testing, bug bashes, and release testing.
+• To explore the different discovery paths in an application, you may need to learn
+  to use new tools. This chapter discussed relevant API and web UI exploratory
+  testing tools such as Postman, WireMock, Bug Magnet, and Chrome DevTools.
+• The test environment is the playground for manual exploratory testing, and maintaining
+  its hygiene is critical to achieving the goals of exploratory testing. We discussed 
+  some common issues in test environment maintenance and remedies to overcome them.
+• Manual exploratory testing is a highly individual process, relying on analytical
+  and observational skills. Structuring the approach toward exploratory testing is
+  vital to streamline the outcomes.
+  

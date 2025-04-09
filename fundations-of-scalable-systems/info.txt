@@ -14,16 +14,18 @@ There are multiple options for protecting data at rest. Popular database engines
 
 Another perspective on security is the CIA triad, which stands for confidentiality,
   integrity, and availability. Availability refers to a system’s ability to operate 
-  reliably under attack from adversa‐ ries. Such attacks might be attempts to exploit a system 
-  design weakness to bring the system down. Another attack is the classic distributed 
-  denial-of-service (DDoS), in which an adversary gains control over multitudes of systems and 
-  devices and coordinates a flood of requests that effectively make a system unavailable.
+  reliably under attack from adversa‐ ries. Such attacks might be attempts to exploit 
+  a system design weakness to bring the system down. Another attack is the classic 
+  distributed denial-of-service (DDoS), in which an adversary gains control over 
+  multitudes of systems and devices and coordinates a flood of requests that effectively
+  make a system unavailable.
 
 
 Scaling out relies on the ability to replicate a service in the architecture and run
   multiple copies on multiple server nodes. Requests from clients are distributed across
-  the replicas so that in theory, if we have N replicas and R requests, each server node processes 
-  R/N requests. This simple strategy increases an application’s capacity and hence scalability.
+  the replicas so that in theory, if we have N replicas and R requests, each server node
+  processes R/N requests. This simple strategy increases an application’s capacity and 
+  hence scalability.
 
 Distributed SQL stores
   These enable organizations to scale out their SQL database relatively seamlessly
@@ -33,129 +35,127 @@ Distributed SQL stores
   SQL databases that are commonly known as NewSQL stores that fit in this category.
 
 Distributed so-called “NoSQL” stores (from a whole array of vendors)
-  These products use a variety of data models and query languages to distribute data across multiple 
-  nodes running the database engine, each with their own locally attached storage. Again, the 
-  location of the data is transparent to the application, and typically controlled by the design 
-  of the data model using hashing functions on database keys. Leading products in this 
-  category are Cassandra, MongoDB, and Neo4j.
+  These products use a variety of data models and query languages to distribute data across
+  multiple nodes running the database engine, each with their own locally attached storage.
+  Again, the location of the data is transparent to the application, and typically controlled
+  by the design of the data model using hashing functions on database keys. Leading products 
+  in this category are Cassandra, MongoDB, and Neo4j.
 
-
-Some update requests, however, can be successfully responded to without fully persisting the data 
-  in a database. For example, the skiers and snowboarders among you will be familiar with lift ticket 
-  scanning systems that check you have a valid pass to ride the lifts that day. They also record 
-  which lifts you take, the time you get on, and so on. Nerdy skiers/snowboarders can then use the 
-  resort’s mobile app to see how many lifts they ride in a day. As a person waits to get on a lift,
-  a scanner device validates the pass using an RFID (radio-frequency identification) chip reader.
-  The information about the rider, lift, and time are then sent over the internet to a data capture 
-  service operated by the ski resort. The lift rider doesn’t have to wait for this to occur, as 
-  the response time could slow down the lift-loading process. There’s also no expectation from 
-  the lift rider that they can instantly use their app to ensure this data has been captured. 
-  They just get on the lift, talk smack with their friends, and plan their next run.
-  Service implementations can exploit this type of scenario to improve responsiveness.
-  The data about the event is sent to the service, which acknowledges receipt and
-  concurrently stores the data in a remote queue for subsequent writing to the database.
-  Distributed queueing platforms can be used to reliably send data from one service to
-  another, typically but not always in a first-in, first-out (FIFO) manner.
+Some update requests, however, can be successfully responded to without fully persisting the
+  data in a database. For example, the skiers and snowboarders among you will be familiar with 
+  lift ticket scanning systems that check you have a valid pass to ride the lifts that day.
+  They also record which lifts you take, the time you get on, and so on. Nerdy skiers/snowboarders
+  can then use the resort’s mobile app to see how many lifts they ride in a day. As a person
+  waits to get on a lift, a scanner device validates the pass using an RFID (radio-frequency 
+  identification) chip reader. The information about the rider, lift, and time are then sent 
+  over the internet to a data capture service operated by the ski resort. The lift rider 
+  doesn’t have to wait for this to occur, as the response time could slow down the lift-loading
+  process. There’s also no expectation from the lift rider that they can instantly use their
+  app to ensure this data has been captured. They just get on the lift, talk smack with their
+  friends, and plan their next run. Service implementations can exploit this type of scenario
+  to improve responsiveness. The data about the event is sent to the service, which 
+  acknowledges receipt and concurrently stores the data in a remote queue for subsequent 
+  writing to the database. Distributed queueing platforms can be used to reliably send data 
+  from one service to another, typically but not always in a first-in, first-out (FIFO) manner.
 
 
 That said, there are some cases where upgrading the number of CPU cores and
-  available memory is not going to buy you more scalability. For example, if code is single threaded, 
-  running it on a node with more cores is not going to improve performance. It’ll just use one core 
-  at any time. The rest are simply not used. If multithreaded code contains many serialized sections, 
-  only one threaded core can proceed at a time to ensure the results are correct. 
-  This phenomenon is described by Amdahl’s law. This gives us a way to calculate the theoretical 
-  acceleration of code when adding more CPU cores based on the amount of code that executes serially.
-  Two data points from Amdahl’s law are:
+  available memory is not going to buy you more scalability. For example, if code is single
+  threaded, running it on a node with more cores is not going to improve performance. It’ll 
+  just use one core at any time. The rest are simply not used. If multithreaded code contains
+  many serialized sections, only one threaded core can proceed at a time to ensure the results
+  are correct. This phenomenon is described by Amdahl’s law. This gives us a way to calculate
+  the theoretical acceleration of code when adding more CPU cores based on the amount of 
+  code that executes serially. Two data points from Amdahl’s law are:
 • If only 5% of a code executes serially, the rest in parallel, 
   adding more than 2,048 cores has essentially no effect.
 • If 50% of a code executes serially, the rest in parallel, 
   adding more than 8 cores has essentially no effect.
 
 
-service-oriented architecture (SOA) pattern, an established architectural approach for building 
-  distributed systems. A more modern evolution of this approach revolves around microservices. These 
-  tend to be more cohesive, encapsulated services that promote continuous development and deployment.
+service-oriented architecture (SOA) pattern, an established architectural approach for 
+  building distributed systems. A more modern evolution of this approach revolves around 
+  microservices. These tend to be more cohesive, encapsulated services that promote continuous 
+  development and deployment.
 
 For physically wired networks, the two most common types are local area networks
-  (LANs) and wide area networks (WANs). LANs are networks that can connect devices at “building scale,
-  ” being able to transmit data over a small number (e.g., 1–2) of kilometers. Contemporary LANs 
-  in data centers can transport between 10 and 100 gigabits per second (Gbps). This is known as 
-  the network’s bandwidth, or capacity. The time taken to transmit a message across a LAN the 
-  network’s latency —is submillisecond with modern LAN technologies.
-WANs are networks that traverse the globe and make up what we collectively call the
-  internet. These long-distance connections are the high speed data pipelines connect‐
-  ing cities, countries, and continents with fiber optic cables. These cables support a
-  networking technology known as wavelength division multiplexing which makes it
-  possible to transmit up to 171 Gbps over 400 different channels, giving more than
-  70 terabits per second (Tbps) of total bandwidth for a single fiber link. The fiber
-  cables that span the world normally comprise four or more strands of fiber, giving
-  bandwidth capacity of hundreds of Tbps for each cable.
+  (LANs) and wide area networks (WANs). LANs are networks that can connect devices at 
+  “building scale, ” being able to transmit data over a small number (e.g., 1–2) of 
+  kilometers. Contemporary LANs in data centers can transport between 10 and 100 gigabits 
+  per second (Gbps). This is known as the network’s bandwidth, or capacity. The time taken
+  to transmit a message across a LAN the network’s latency —is submillisecond with modern 
+  LAN technologies.
+WANs are networks that traverse the globe and make up what we collectively call the internet.
+  These long-distance connections are the high speed data pipelines connecting cities, 
+  countries, and continents with fiber optic cables. These cables support a networking 
+  technology known as wavelength division multiplexing which makes it possible to transmit 
+  up to 171 Gbps over 400 different channels, giving more than 70 terabits per second (Tbps)
+  of total bandwidth for a single fiber link. The fiber cables that span the world normally 
+  comprise four or more strands of fiber, giving bandwidth capacity of hundreds of Tbps 
+  for each cable.
 
-Wireless technologies have different range and bandwidth characteristics. WiFi rout‐
-  ers that we are all familiar with in our homes and offices are wireless Ethernet
-  networks and use 802.11 protocols to send and receive data. The most widely used
-  WiFi protocol, 802.11ac, allows for maximum (theoretical) data rates of up to 5,400
-  Mbps. The most recent 802.11ax protocol, also known as WiFi 6, is an evolution of
-  802.11ac technology that promises increased throughput speeds of up to 9.6 Gbps.
-  The range of WiFi routers is of the order of tens of meters and of course is affected by
-  physical impediments like walls and floors.
+Wireless technologies have different range and bandwidth characteristics. WiFi routers 
+  that we are all familiar with in our homes and offices are wireless Ethernet networks 
+  and use 802.11 protocols to send and receive data. The most widely used WiFi protocol, 
+  802.11ac, allows for maximum (theoretical) data rates of up to 5,400 Mbps. The most 
+  recent 802.11ax protocol, also known as WiFi 6, is an evolution of 802.11ac technology 
+  that promises increased throughput speeds of up to 9.6 Gbps. The range of WiFi routers 
+  is of the order of tens of meters and of course is affected by physical impediments like
+  walls and floors.
 
 4G LTE is around 10 times faster than the older 3G, able to handle sustained download speeds 
-  around 10 Mbps (peak download speeds are nearer 50 Mbps) and upload speeds between 2 and 5 Mbps
-  Emerging 5G cellular networks promise 10x bandwidth improvements over existing 4G, with 1–2 
-  millisecond latencies between devices and cell towers. This is a great improvement over 4G latencies, 
-  which are in the 20–40 millisecond range. The trade-off is range. 5G base station range operates 
-  at about 500 meters maximum, whereas 4G provides reliable reception at distances of 10–15 km.
+  around 10 Mbps (peak download speeds are nearer 50 Mbps) and upload speeds between 2 and 
+  5 Mbps Emerging 5G cellular networks promise 10x bandwidth improvements over existing 4G,
+  with 1–2 millisecond latencies between devices and cell towers. This is a great improvement 
+  over 4G latencies, which are in the 20–40 millisecond range. The trade-off is range. 5G 
+  base station range operates at about 500 meters maximum, whereas 4G provides reliable 
+  reception at distances of 10–15 km.
 
-Software systems on the internet communicate using the Internet Protocol (IP) suite.
-  The IP suite specifies host addressing, data transmission formats, message routing,
-  and delivery characteristics. There are four abstract layers, which contain related
-  protocols that support the functionality required at that layer. These are, from lowest to highest:
+Software systems on the internet communicate using the Internet Protocol (IP) suite. The 
+  IP suite specifies host addressing, data transmission formats, message routing, and 
+  delivery characteristics. There are four abstract layers, which contain related protocols 
+  that support the functionality required at that layer. These are, from lowest to highest:
   
 1. The data link layer, specifying communication methods for data across a single network segment. 
    This is implemented by the device drivers and network cards that live inside your devices.
-   
-2. The internet layer specifies addressing and routing protocols that make it possi‐
-   ble for traffic to traverse the independently managed and controlled networks
-   that comprise the internet. This is the IP layer in the internet protocol suite.
-   
+2. The internet layer specifies addressing and routing protocols that make it possible 
+   for traffic to traverse the independently managed and controlled networks that comprise 
+   the internet. This is the IP layer in the internet protocol suite.
 3. The transport layer, specifying protocols for reliable and best-effort, host-to-host
    communications. This is where the well-known Transmission Control Protocol (TCP) and 
    User Datagram Protocol (UDP) live. 
-   
 4. The application layer, which comprises several application-level protocols such as
    HTTP and the secure copy protocol (SCP).
 
-IP is known as a best-effort delivery protocol. This means it does not attempt to com‐
-  pensate for the various error conditions that can occur during packet transmission.
-  Possible transmission errors include data corruption, packet loss, and duplication.
-  In addition, every packet is routed across the internet from source to destination
-  independently. Treating every packet independently is known as packet switching.
-  This allows the network to dynamically respond to conditions such as network link
-  failure and congestion, and hence is a defining characteristic of the internet. 
-  does mean, however, that different packets may be delivered to the same destination
-  via different network paths, resulting in out-of-order delivery to the receiver.
+IP is known as a best-effort delivery protocol. This means it does not attempt to compensate 
+  for the various error conditions that can occur during packet transmission. Possible 
+  transmission errors include data corruption, packet loss, and duplication. In addition, 
+  every packet is routed across the internet from source to destination independently. 
+  Treating every packet independently is known as packet switching. This allows the network 
+  to dynamically respond to conditions such as network link failure and congestion, and hence
+  is a defining characteristic of the internet. does mean, however, that different packets 
+  may be delivered to the same destination via different network paths, resulting in 
+  out-of-order delivery to the receiver.
 
-TCP is known as a connection-oriented protocol. Before any messages are exchanged
-  between applications, TCP uses a three-step handshake to establish a two-way con‐
-  nection between the client and server applications. The connection stays open until
-  the TCP client calls close() to terminate the connection with the TCP server.
-  The server responds by acknowledging the close() request before the connection is dropped....
-  Reliability is needed as network packets can be lost or delayed during transmis‐
-  sion between sender and receiver. To achieve reliable packet delivery, TCP uses
-  a cumulative acknowledgment mechanism. This means a receiver will periodically
-  send an acknowledgment packet that contains the highest sequence number of the
-  packets received without gaps in the packet stream. This implicitly acknowledges
+TCP is known as a connection-oriented protocol. Before any messages are exchanged between 
+  applications, TCP uses a three-step handshake to establish a two-way con‐ nection between 
+  the client and server applications. The connection stays open until the TCP client calls 
+  close() to terminate the connection with the TCP server. The server responds by acknowledging
+  the close() request before the connection is dropped.... Reliability is needed as network 
+  packets can be lost or delayed during transmission between sender and receiver. To achieve
+  reliable packet delivery, TCP uses a cumulative acknowledgment mechanism. This means a 
+  receiver will periodically send an acknowledgment packet that contains the highest sequence 
+  number of the packets received without gaps in the packet stream. This implicitly acknowledges
   all packets sent with a lower sequence number, meaning all have been successfully received. 
   If a sender doesn’t receive an acknowledgment within a timeout period, the packet is resent.
   
 UDP is a simple, connectionless protocol, which exposes the user’s program to any unreliability 
-  of the underlying network. There is no guarantee that delivery will occur in a prescribed order, 
-  or that it will happen at all. It can be thought of as a thin veneer (layer) on top of the 
-  underlying IP protocol, and deliberately trades off raw performance over reliability.
-  This, however, is highly appropriate for many modern applications where the odd
-  lost packet has very little effect. Think streaming movies, video conferencing, and
-  gaming, where one lost packet is unlikely to be perceptible by a user.
+  of the underlying network. There is no guarantee that delivery will occur in a prescribed 
+  order, or that it will happen at all. It can be thought of as a thin veneer (layer) on top 
+  of the underlying IP protocol, and deliberately trades off raw performance over reliability.
+  This, however, is highly appropriate for many modern applications where the odd lost packet
+  has very little effect. Think streaming movies, video conferencing, and gaming, where one 
+  lost packet is unlikely to be perceptible by a user.
 
 Each IP address can support 65,535 TCP ports and another 65,535 UDP ports. On a server, each 
   {<IP Address>, <port>} combination can be associated with an application. This combination 
@@ -168,22 +168,20 @@ A socket connection is identified by a unique combination of client and server I
   in a stream, and the server responds with results. The sockets library supports both
   protocols, with the SOCK_STREAM option for TCP, and the SOCK_DGRAM for UDP.
 
-
-
-For establishing a connection and making a call to an RMI server object
-
+- For establishing a connection and making a call to an RMI server object
 1. When the server starts, its logical reference is stored in the RMI registry. This
    entry contains the Java client stub that can be used to make remote calls to the server.
 2. The client queries the registry, and the stub for the server is returned.
 3. The client stub accepts a method call to the server interface from the Java client implementation.
-4. The stub transforms the request into one or more network packets that are sent
-   to the server host. This transformation process is known as marshalling.
-5. The skeleton accepts network requests from the client, and unmarshalls the 
-   network packet data into a valid call to the RMI server object implementation. 
-   Unmarshalling is the opposite of marshalling—it takes a sequence of network 
-   packets and transforms them into a call to an object.
+4. The stub transforms the request into one or more network packets that are sent to the 
+   server host. This transformation process is known as marshalling.
+5. The skeleton accepts network requests from the client, and unmarshalls the network packet
+   data into a valid call to the RMI server object implementation. Unmarshalling is the 
+   opposite of marshalling—it takes a sequence of network packets and transforms them into 
+   a call to an object.
 6. The skeleton waits for the method to return a response.
-7. The skeleton marshalls the method results into a network reply packet that is returned to the client.
+7. The skeleton marshalls the method results into a network reply packet that is returned 
+   to the client.
 8. The stub unmarshalls the data and passes the result to the Java client call site.
 
 
@@ -203,41 +201,39 @@ Our applications are built on the at-least-once semantics of TCP/IP, we must imp
 
 
 The Two Generals’ Problem
-Imagine a city under siege by two armies. The armies lie on opposite sides of the
-  city, and the terrain surrounding the city is difficult to travel through and visible to
-  snipers in the city. In order to overwhelm the city, it’s crucial that both armies attack
-  at the same time. This will stretch the city’s defenses and make victory more likely for
-  the attackers. If only one army attacks, then they will likely be repelled. Given these 
+Imagine a city under siege by two armies. The armies lie on opposite sides of the city, 
+  and the terrain surrounding the city is difficult to travel through and visible to snipers 
+  in the city. In order to overwhelm the city, it’s crucial that both armies attack at the 
+  same time. This will stretch the city’s defenses and make victory more likely for the 
+  attackers. If only one army attacks, then they will likely be repelled. Given these 
   constraints, how can the two generals reach agreement on the exact time to attack, such 
-  that both generals know for certain that agreement has been reached? They both need 
-  certainty that the other army will attack at the agreed time, or disaster will ensue.
-  To coordinate an attack, the first general sends a messenger to the other, with instruc‐
-  tions to attack at a specific time. As the messenger may be captured or killed by
-  snipers, the sending general cannot be certain the message has arrived unless they get
-  an acknowledgment messenger from the second general. Of course, the acknowledgment 
-  messenger may be captured or killed, so even if the original messenger does get through, 
-  the first general may never know. And even if the acknowledgment message arrives, how does 
-  the second general know this, unless they get an acknowledgment from the first general?
-  -- The Two Generals’ Problem is analogous to two nodes in a distributed system wishing 
-     to reach agreement on some state, such as the value of a data item that can be
-     updated at either. Partial failures are analogous to losing messages and acknowledg‐
-     ments. Messages may be lost or delayed for an indeterminate period of time—the
-     characteristics of asynchronous networks,
-  In fact it can be demonstrated that consensus on an asynchronous network in the
-  presence of crash faults, where messages can be delayed but not lost, is impossible to
-  achieve within bounded time. This is known as the FLP Impossibility Theorem.
-  LUCKILY, THIS IS ONLY A THEORETICAL LIMITATION,
+  that both generals know for certain that agreement has been reached? They both need certainty 
+  that the other army will attack at the agreed time, or disaster will ensue. To coordinate 
+  an attack, the first general sends a messenger to the other, with instructions to attack 
+  at a specific time. As the messenger may be captured or killed by snipers, the sending 
+  general cannot be certain the message has arrived unless they get an acknowledgment 
+  messenger from the second general. Of course, the acknowledgment messenger may be captured 
+  or killed, so even if the original messenger does get through, the first general may never 
+  know. And even if the acknowledgment message arrives, how does the second general know this,
+  unless they get an acknowledgment from the first general?
+  -- The Two Generals’ Problem is analogous to two nodes in a distributed system wishing to 
+     reach agreement on some state, such as the value of a data item that can be updated at 
+     either. Partial failures are analogous to losing messages and acknowledgments. Messages 
+     may be lost or delayed for an indeterminate period of time—the characteristics of 
+     asynchronous networks,
+  In fact it can be demonstrated that consensus on an asynchronous network in the presence 
+  of crash faults, where messages can be delayed but not lost, is impossible to achieve 
+  within bounded time. This is known as the FLP Impossibility Theorem. LUCKILY, THIS IS 
+  ONLY A THEORETICAL LIMITATION,
 
-
-A time service represents an accurate time source, such as a GPS or atomic clock, 
-  which can be used to periodically reset the clock on a node to correct for drift on 
-  packet-switched, variable-latency data networks. The most widely used time service is 
-  Network Time Protocol (NTP), which provides a hierarchically organized collection of 
-  time servers spanning the globe. The root servers, of which there are around 300 
-  worldwide, are the most accurate. Time servers in the next level of the hierarchy 
-  (approximately 20,000) synchronize to within a few milliseconds of the root server 
-  periodically, and so on throughout the hierarchy, with a maximum of 15 levels. 
-  Globally, there are more than 175,000 NTP servers.
+A time service represents an accurate time source, such as a GPS or atomic clock, which 
+  can be used to periodically reset the clock on a node to correct for drift on packet-switched,
+  variable-latency data networks. The most widely used time service is Network Time Protocol 
+  (NTP), which provides a hierarchically organized collection of time servers spanning the 
+  globe. The root servers, of which there are around 300 worldwide, are the most accurate.
+  Time servers in the next level of the hierarchy (approximately 20,000) synchronize to 
+  within a few milliseconds of the root server periodically, and so on throughout the 
+  hierarchy, with a maximum of 15 levels. Globally, there are more than 175,000 NTP servers.
 
 In fact, a compute node has two clocks. These are:
 Time of day clock
@@ -274,7 +270,6 @@ Virtually every program does more than just
   activities that can be executed in parallel, the operating system can schedule tasks that
   have work to do while others wait for I/O. 
 
-
 Go
   The communicating sequential processes (CSP) model forms the basis of Go’s
   concurrency features. In CSP, processes synchronize by sending messages using
@@ -291,15 +286,14 @@ Erlang
   
 Node.js
   Node.js eschews anything resembling multiple threads and instead utilizes a single-
-  threaded nonblocking model managed by an event loop. This means when an I/O
-  operation is required, such as accessing a database, Node.js instigates the operation
-  but does not wait until it completes. Operations are delegated to the operating sys‐
-  tem to execute asynchronously, and upon completion the results are placed on the
-  main thread’s stack as callbacks. These callbacks are subsequently executed in the
-  event loop. This model works well for codes performing frequent I/O requests, as it
-  avoids the overheads associated with thread creation and management. However, if
-  your code needs to perform a CPU-intensive operation, such as sorting a large list,
-  you only have one thread. This will therefore block all other requests until the sort is
+  threaded nonblocking model managed by an event loop. This means when an I/O operation 
+  is required, such as accessing a database, Node.js instigates the operation but does 
+  not wait until it completes. Operations are delegated to the operating system to 
+  execute asynchronously, and upon completion the results are placed on the main 
+  thread’s stack as callbacks. These callbacks are subsequently executed in the event 
+  loop. This model works well for codes performing frequent I/O requests, as it avoids 
+  the overheads associated with thread creation and management. However, if your code 
+  needs to perform a CPU-intensive operation, such as sorting a large list, you only 
+  have one thread. This will therefore block all other requests until the sort is 
   complete. Rarely an ideal situation.
-
 

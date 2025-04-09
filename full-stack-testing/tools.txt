@@ -1,0 +1,5 @@
+- WireMock
+- browserstack.com | saucelabs.com (Web UI Testing)
+- Bug Magnet (browser plug-in)
+- 
+

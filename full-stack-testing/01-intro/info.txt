@@ -1,0 +1,21 @@
+- Key Takeaways
+  Here are the key takeaways from this chapter:
+
+• Software quality cannot be equated to just bug-free functionality anymore. An
+  application can be deemed suboptimal in quality if its holistic quality dimensions
+  (security, performance, visual quality, etc.) are not on par.
+• Full stack testing refers to testing all the quality dimensions of an application
+  holistically at every layer, thereby delivering high-quality software.
+• For full stack testing to meet its goal of delivering high-quality software, teams
+  should shift testing to the left, so that it begins in parallel with analysis and 
+  continues throughout the delivery cycle. • Shift-left testing embodies the aphorism 
+  “Quality is the team’s responsibility,” as it demands that every role in the team take 
+  ownership of performing certain quality checks at different phases of delivery. This 
+  requires all team members to upskill themselves, acquiring relevant testing skills at 
+  varied competency levels.
+• The two classic monolithic categories of testing skills, manual and automated, mask a 
+  vast set of new testing skills required to perform full stack testing efficiently. 
+  This chapter introduced 10 different testing skills that are essential for delivering 
+  high-quality web and mobile applications today, 
+
+
