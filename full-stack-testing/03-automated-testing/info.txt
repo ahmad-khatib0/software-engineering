@@ -52,4 +52,9 @@
   want to run the tests against Chrome, you have to download the ChromeDriver separately
   and include it in your automation scripts.
 
+- Java–REST Assured Framework
+  REST Assured is the go-to Java library for performing automated testing of REST APIs. It 
+  offers a domain-specific language (DSL) with Gherkin syntax (Given, When, Then) to create 
+  readable and maintainable API tests, and uses hamcrest matchers for assertions. REST Assured
+  can work with any testing framework, like JUnit or TestNG.
 
