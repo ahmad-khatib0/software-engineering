@@ -1,5 +1,10 @@
 - WireMock
 - browserstack.com | saucelabs.com (Web UI Testing)
 - Bug Magnet (browser plug-in)
-- 
+- Pact (Pact is the de-facto API contract testing tool) 
+- REST Assured, Karate, and Postman (Automate API tests)
+- Selenium and Cypress (write automated UI tests)
+- TestRail, Jira, Excel sheet (track the automation coverage)
+
+
 

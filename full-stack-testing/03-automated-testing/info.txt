@@ -1,0 +1,55 @@
+
+- let’s consider a scenario where you only perform manual testing throughout your 
+  application development cycle, and see how automated testing compares in the same 
+  situation. Let’s say, on average, each feature in your application has 20 test cases,
+  and you take 2 minutes per test case to execute them, or 40 minutes to test one feature 
+  manually. Whenever a new feature is developed, you need to test its integration with 
+  the existing features and also ensure the existing features are not broken due to the
+  new changes—a practice referred to as regression testing. The risk of not doing 
+  regression testing early enough is that you will find integration bugs only during 
+  release testing, which is very late in the cycle and might delay the release timeline. 
+  So, in our example, regression testing along with new feature testing will take 80 
+  minutes when there is a second feature, 120 minutes when there is a third feature... 
+
+- JUnit, TestNG, and NUnit are some commonly adopted unit testing frameworks in the 
+  backend. Jest, Mocha, and Jasmine are popular frontend unit testing frameworks.
+
+- Contract tests are written to validate the stubs against the actual contracts of the 
+  integrating services and to provide feedback continuously to both teams as they progress
+  with development. Contract tests don’t necessarily check for the exact data returned
+  by the integrating service, but rather focus on the contract structure itself. In our
+  example ecommerce application, contract tests can be added to validate the external
+  vendor PIM service’s contract so that whenever it changes, we can change the order
+  service features accordingly. 
+
+- Automated Functional Testing Strategy: 
+  The test pyramid recommends having a broad bucket of micro-level tests and gradually 
+  reducing the number of macro-level tests as their scope increases. For example, if 
+  you have 10x unit and integration tests, you should have 5x service tests and only 
+  x UI-driven tests.
+
+- Another part of the automation strategy should be to have a way to track the automation
+  coverage in order to ensure there is no backlog. Test management tools like TestRail,
+  project management tools like Jira, or something as simple as an Excel sheet can be 
+  adopted for this purpose.
+
+- Agile teams follow, is to call a user story “done” only if all its micro and macro 
+  level tests are automated!
+
+- Selenium WebDriver mainly facilitates interaction with the web application rendered 
+  in the browser. It doesn’t serve any other purpose, such as assertions, report 
+  generation, etc., which is why we need other tools like TestNG and Maven to complete
+  the automation framework.
+
+- Selenium WebDriver has three basic components:
+. APIs: These are the methods that let you interact with the application elements in the
+  browser (clicking, typing in fields, etc.).
+. Client library: The Selenium WebDriver client library bundles the APIs for us to 
+  use in our test suite. Client libraries are available in many programming languages.
+. Driver: This is the component that instructs the browser to take the actions dictated 
+  by the API. The drivers are usually created and maintained by the respective browsers
+  themselves and are not part of the Selenium distribution package. For example, if you
+  want to run the tests against Chrome, you have to download the ChromeDriver separately
+  and include it in your automation scripts.
+
+
