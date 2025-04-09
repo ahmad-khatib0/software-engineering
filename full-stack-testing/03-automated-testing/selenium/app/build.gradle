@@ -21,6 +21,12 @@ dependencies {
 
     // This dependency is used by the application.
     implementation libs.guava
+
+    // Selenium WebDriver
+    implementation 'org.seleniumhq.selenium:selenium-java:4.10.0'
+    // WebDriverManager for automatic driver management
+    implementation 'io.github.bonigarcia:webdrivermanager:5.5.3'
+    implementation 'org.slf4j:slf4j-simple:2.0.9'
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -38,4 +44,10 @@ application {
 tasks.named('test') {
     // Use TestNG for unit tests.
     useTestNG()
+    // To see the browser during tests
+    systemProperty "java.awt.headless", "false"
+    testLogging {
+        showStandardStreams = true
+        events "passed", "skipped", "failed"
+    }
 }

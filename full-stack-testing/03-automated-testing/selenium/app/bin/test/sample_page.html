@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Sample Test Page</title>
+</head>
+
+<body>
+  <h1 id="main-header">Welcome to the Test Page</h1>
+
+  <div class="form-section">
+    <input type="text" id="username" name="username" placeholder="Enter username" />
+    <input type="password" id="password" name="password" placeholder="Enter password" />
+
+    <button id="login-btn" onclick="alert('Login clicked!')">Login</button>
+    <button id="register-btn" disabled>Register</button>
+  </div>
+
+  <div class="content-section">
+    <ul id="items-list">
+      <li class="item">Item 1</li>
+      <li class="item">Item 2</li>
+      <li class="item">Item 3</li>
+    </ul>
+
+    <select id="dropdown">
+      <option value="opt1">Option 1</option>
+      <option value="opt2">Option 2</option>
+      <option value="opt3">Option 3</option>
+    </select>
+
+    <div id="hidden-element" style="display: none">Hidden Content</div>
+    <div id="visible-element">Visible Content</div>
+  </div>
+
+  <script>
+    function toggleElement() {
+      const element = document.getElementById("hidden-element");
+      element.style.display =
+        element.style.display === "none" ? "block" : "none";
+    }
+  </script>
+</body>
+
+</html>
