@@ -88,3 +88,33 @@
 7. Both the consumer and the provider’s Pact tests are integrated to the CI pipeline so 
    that the teams can receive feedback continuously.
 
+- The ice cream cone
+  When you invert the test pyramid, it looks like a cone. This is referred to as the ice cream
+  cone antipattern, where there are more macro-level UI-driven tests and very few micro-level
+  tests. You can sense the ice cream cone antipattern when you observe some of these symptoms
+  in the project:
+• Waiting for a long period to get feedback from the tests run
+• Catching defects later in the cycle, sometimes only during the release testing stage
+• Elaborate manual testing required to give feedback despite having automated tests
+• Frustration in the team with the automated tests as the diligent efforts in automating
+  the UI flows have not been fruitful in giving the right results
+
+- The cupcake
+  When you duplicate tests in multiple layers, instead of a test pyramid you wind up with 
+  a wide bottom layer, a wide middle, and an even wider top—overall, it looks like a 
+  cupcake. This kind of disorganization generally happens when you have siloed teams of
+  developers and automated testers. For example, the developers will have added unit 
+  tests to verify all the invalid login inputs, and the testers will add the same tests
+  in the UI layer.
+
+- Mutation Testing 
+  To find the missed test cases in unit testing, a technique called mutation testing is
+  employed. Mutation testing changes the application’s code and checks if the tests fail.
+  For example, when there are void method calls, it removes the calls in the code and
+  runs the unit tests again. The mutation is said to be “killed” if the tests fail and 
+  to have “survived” if not. PIT is a popular mutation testing tool that can be added 
+  as a Maven dependency and executed from the command line. It lists the test cases 
+  that survived along with an overall mutation score for the application. Mutation 
+  testing, though very effective, is time-consuming; hence, it has to be used wisely.
+
+

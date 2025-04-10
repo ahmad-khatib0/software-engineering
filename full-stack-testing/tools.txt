@@ -5,6 +5,9 @@
 - REST Assured, Karate, and Postman (Automate API tests)
 - Selenium and Cypress (write automated UI tests)
 - TestRail, Jira, Excel sheet (track the automation coverage)
-
-
-
+- Karate (combine API test-automation, mocks, performance-testing, UI automation)
+- Test.ai, Functionize, Appvance, Testim, and TestCraft  (AI/ML test automation)
+- ReportPortal (Test report analysis)
+- SeaLights (AI/ML test governance tool (identifies the areas of code with poor test coverage))
+- JaCoCo, Cobertura (fail when the code coverage percentage is below a certain threshold)
+- pitest.org (Test mutation)

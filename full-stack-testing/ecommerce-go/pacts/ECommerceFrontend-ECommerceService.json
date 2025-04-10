@@ -1,0 +1,107 @@
+{
+  "consumer": {
+    "name": "ECommerceFrontend"
+  },
+  "interactions": [
+    {
+      "description": "GET request for all items",
+      "providerState": "items exist",
+      "request": {
+        "method": "GET",
+        "path": "/items"
+      },
+      "response": {
+        "body": [
+          {
+            "SKU": "984058981",
+            "color": "Green",
+            "size": "M"
+          }
+        ],
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body": {
+            "match": "type",
+            "min": 1
+          },
+          "$.body[*].SKU": {
+            "match": "type"
+          },
+          "$.body[*].color": {
+            "match": "type"
+          },
+          "$.body[*].size": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "POST request to create item",
+      "request": {
+        "body": {
+          "SKU": "111222333",
+          "color": "Purple",
+          "size": "XXL"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.SKU": {
+            "match": "type"
+          },
+          "$.body.color": {
+            "match": "type"
+          },
+          "$.body.size": {
+            "match": "type"
+          }
+        },
+        "method": "POST",
+        "path": "/items"
+      },
+      "response": {
+        "body": {
+          "SKU": "111222333",
+          "color": "Purple",
+          "size": "XXL"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.SKU": {
+            "match": "type"
+          },
+          "$.body.color": {
+            "match": "type"
+          },
+          "$.body.size": {
+            "match": "type"
+          }
+        },
+        "status": 201
+      }
+    }
+  ],
+  "metadata": {
+    "pact-go": {
+      "version": "2.4.1"
+    },
+    "pactRust": {
+      "ffi": "0.4.26",
+      "mockserver": "1.2.11",
+      "models": "1.2.7"
+    },
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  },
+  "provider": {
+    "name": "ECommerceService"
+  }
+}
