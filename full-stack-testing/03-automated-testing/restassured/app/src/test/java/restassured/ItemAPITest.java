@@ -7,6 +7,8 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import static io.restassured.http.ContentType.JSON;
+
 class ItemAPITest extends TestConfig {
 
   @Test
@@ -59,5 +61,27 @@ class ItemAPITest extends TestConfig {
         .body("[0]", hasKey("sku"))
         .body("[0]", hasKey("color"))
         .body("[0]", hasKey("size"));
+  }
+
+  @Test
+  void createItem_ShouldReturn201WithCreatedItem() {
+    String requestBody = """
+        {
+            "sku": "987654321",
+            "color": "Yellow",
+            "size": "XS"
+        }
+        """;
+
+    given()
+        .contentType(JSON)
+        .body(requestBody)
+        .when()
+        .post("/items")
+        .then()
+        .statusCode(201)
+        .body("sku", equalTo("987654321"))
+        .body("color", equalTo("Yellow"))
+        .body("size", equalTo("XS"));
   }
 }

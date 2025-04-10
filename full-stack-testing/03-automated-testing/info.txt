@@ -58,3 +58,33 @@
   readable and maintainable API tests, and uses hamcrest matchers for assertions. REST Assured
   can work with any testing framework, like JUnit or TestNG.
 
+- Contract testing
+  Pact enables the contract testing process to be fully automated. To get an idea of its
+  workflow, we’ll use the same order and PIM service example. Let’s say the order service 
+  is integrating with the GET /items endpoint in the external PIM service in order to retrieve 
+  the item details, specifically the available sizes, SKU, and colors. The two teams’ Pact 
+  workflow will be the following:
+1. As the first step, the order service team collates all the integration test cases. For
+   example, some of the integration test cases will be that the /items endpoint should return
+   the item details as expected when the item exists, should return an empty array when the 
+   item doesn’t exist, and should return appropriate error codes (404, 500, etc.) on invalid 
+   requests.
+2. The order service team creates stubs for these test cases using Pact.
+3. The order service team writes consumer contract tests using Pact against these stubs, 
+   asserting on the specific attributes: status codes, SKU, available sizes, and colors. 
+   These tests, when run, automatically produce a pact file. This file captures the different 
+   requests to the /items endpoint and assertions on the expected attributes in the responses.
+4. The pact file is passed on to the PIM team automatically via an open source pro vision 
+   called the Pact Broker, which needs to be set up and maintained by both the consumer and 
+   provider teams. The Pact team also offers a paid service called Pactflow, which eliminates 
+   the need to set up and maintain the Pact Broker. To make it simpler, the files can also be 
+   shared via folders.
+5. On the PIM service side, the team writes a provider contract test to receive the pact file
+   from the Pact Broker and set up the test data in different states as per the consumer tests’
+   requirements. When the provider test runs, Pact will make appropriate requests as described
+   in the pact file against the actual PIM service and verify the actual responses.
+6. The provider test’s results are available to the consumer via the Pact Broker, completing
+   the full feedback loop without intervention. 
+7. Both the consumer and the provider’s Pact tests are integrated to the CI pipeline so 
+   that the teams can receive feedback continuously.
+

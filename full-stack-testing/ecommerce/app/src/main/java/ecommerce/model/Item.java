@@ -1,25 +1,45 @@
 package ecommerce.model;
 
-public class Item {
-  private String SKU;
-  private String Color;
-  private String Size;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-  public Item(String SKU, String Color, String Size) {
-    this.SKU = SKU;
-    this.Color = Color;
-    this.Size = Size;
+public class Item {
+  @JsonProperty("sku") // Ensures proper case in JSON
+  private String SKU;
+  private String color;
+  private String size;
+
+  // Default constructor needed for Jackson
+  public Item() {
   }
 
+  public Item(String SKU, String color, String size) {
+    this.SKU = SKU;
+    this.color = color;
+    this.size = size;
+  }
+
+  // Getters and Setters
   public String getSKU() {
     return SKU;
   }
 
+  public void setSKU(String SKU) {
+    this.SKU = SKU;
+  }
+
   public String getColor() {
-    return Color;
+    return color;
+  }
+
+  public void setColor(String color) {
+    this.color = color;
   }
 
   public String getSize() {
-    return Size;
+    return size;
+  }
+
+  public void setSize(String size) {
+    this.size = size;
   }
 }
